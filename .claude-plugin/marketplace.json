@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "google-for-claude",
-      "source": "./",
+      "source": "./plugins/google-for-claude",
       "description": "Google AI & Cloud services for Claude Code — setup wizard + shortcut commands for image gen, video, TTS, music, Drive, Gmail, Calendar, Firebase, and more.",
       "version": "1.0.0"
     }
