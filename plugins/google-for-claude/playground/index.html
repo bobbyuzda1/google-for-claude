@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GFC Playground — Google for Claude</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #6b8cff;
+    --ground: #c84c0c;
+    --brick: #e09050;
+    --pipe-green: #00a800;
+    --pipe-dark: #005800;
+    --coin-gold: #ffa800;
+    --block-yellow: #f8d878;
+    --block-border: #a85000;
+    --text-white: #fcfcfc;
+    --mario-red: #e44040;
+    --star-yellow: #f8b800;
+    --configured: #00a800;
+    --missing: #e44040;
+    --partial: #f8b800;
+    --bg-dark: #000058;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Press Start 2P', monospace;
+    background: var(--bg-dark);
+    color: var(--text-white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    image-rendering: pixelated;
+  }
+
+  /* Scrolling clouds */
+  .clouds {
+    position: fixed; top: 0; left: 0; width: 200%; height: 150px;
+    z-index: 0; pointer-events: none;
+    animation: scrollClouds 30s linear infinite;
+  }
+  .cloud {
+    position: absolute; background: var(--text-white); border-radius: 50%;
+    box-shadow: 20px 0 0 var(--text-white), 40px 5px 0 var(--text-white),
+                -10px 5px 0 var(--text-white), 10px -5px 0 var(--text-white);
+  }
+  .cloud:nth-child(1) { width: 60px; height: 30px; top: 30px; left: 10%; }
+  .cloud:nth-child(2) { width: 80px; height: 35px; top: 50px; left: 35%; }
+  .cloud:nth-child(3) { width: 50px; height: 25px; top: 20px; left: 60%; }
+  .cloud:nth-child(4) { width: 70px; height: 30px; top: 60px; left: 85%; }
+  .cloud:nth-child(5) { width: 60px; height: 30px; top: 35px; left: 110%; }
+  .cloud:nth-child(6) { width: 80px; height: 35px; top: 55px; left: 140%; }
+  .cloud:nth-child(7) { width: 50px; height: 25px; top: 25px; left: 170%; }
+  @keyframes scrollClouds { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* Animated stars background */
+  .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .star {
+    position: absolute; width: 4px; height: 4px; background: var(--text-white);
+    animation: twinkle 2s ease-in-out infinite alternate;
+  }
+  .star:nth-child(odd) { animation-delay: 0.5s; }
+  .star:nth-child(3n) { animation-delay: 1s; width: 3px; height: 3px; }
+  @keyframes twinkle { from { opacity: 0.3; } to { opacity: 1; } }
+
+  .container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px; }
+
+  /* Title banner */
+  .title-banner {
+    text-align: center; padding: 30px 20px; margin-bottom: 30px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
+    border-bottom: 8px solid var(--ground);
+    position: relative;
+  }
+  .title-banner h1 {
+    font-size: 28px; color: var(--coin-gold);
+    text-shadow: 3px 3px 0 var(--ground), -1px -1px 0 var(--mario-red);
+    letter-spacing: 2px;
+  }
+  .title-banner .subtitle {
+    font-size: 10px; color: var(--block-yellow); margin-top: 12px;
+  }
+
+  /* Score / status bar */
+  .score-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 20px; font-size: 10px;
+    border-bottom: 4px solid var(--brick);
+    margin-bottom: 20px;
+  }
+  .score-item { text-align: center; }
+  .score-label { color: var(--block-yellow); margin-bottom: 4px; }
+  .score-value { color: var(--text-white); font-size: 12px; }
+  #connectionDot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; margin-left: 6px;
+    animation: pulse 1s ease-in-out infinite alternate;
+  }
+  #connectionDot.connected { background: var(--configured); }
+  #connectionDot.disconnected { background: var(--missing); }
+  @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+
+  /* Service cards — question blocks */
+  .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
+
+  .service-card {
+    background: var(--block-yellow);
+    border: 4px solid var(--block-border);
+    border-radius: 4px; padding: 16px;
+    position: relative; cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.2), 4px 4px 0 rgba(0,0,0,0.3);
+  }
+  .service-card:hover { transform: translateY(-3px); }
+  .service-card:active { transform: translateY(1px); }
+
+  .service-card .icon {
+    font-size: 24px; margin-bottom: 8px;
+    display: inline-block; animation: blockBounce 2s ease-in-out infinite;
+  }
+  @keyframes blockBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  .service-card .name { font-size: 10px; color: var(--bg-dark); margin-bottom: 6px; }
+  .service-card .desc { font-size: 7px; color: #604020; line-height: 1.6; }
+
+  .service-card .status-badge {
+    position: absolute; top: 8px; right: 8px;
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--bg-dark);
+  }
+  .status-badge.configured { background: var(--configured); }
+  .status-badge.missing { background: var(--missing); }
+  .status-badge.partial { background: var(--partial); }
+
+  /* Coin animation for configured services */
+  .coin-pop {
+    position: absolute; top: -20px; right: 12px;
+    font-size: 16px; animation: coinPop 0.5s ease-out;
+    pointer-events: none;
+  }
+  @keyframes coinPop {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-30px); opacity: 0; }
+  }
+
+  /* Pipe sections */
+  .pipe-section {
+    background: var(--pipe-green);
+    border: 4px solid var(--pipe-dark);
+    border-radius: 8px 8px 0 0;
+    padding: 20px; margin-bottom: 20px;
+    position: relative;
+  }
+  .pipe-section::before {
+    content: ''; position: absolute; top: -12px; left: -8px;
+    right: -8px; height: 16px;
+    background: var(--pipe-green);
+    border: 4px solid var(--pipe-dark);
+    border-radius: 8px 8px 0 0;
+  }
+  .pipe-section h2 { font-size: 12px; color: var(--text-white); margin-bottom: 16px; }
+
+  /* Action buttons */
+  .action-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px; padding: 10px 16px;
+    border: 4px solid var(--block-border);
+    background: var(--mario-red);
+    color: var(--text-white);
+    cursor: pointer; border-radius: 4px;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.3), 3px 3px 0 rgba(0,0,0,0.4);
+    transition: transform 0.1s;
+    text-decoration: none; display: inline-block;
+    margin: 4px;
+  }
+  .action-btn:hover { transform: translateY(-2px); background: #f05050; }
+  .action-btn:active { transform: translateY(2px); box-shadow: inset 3px 3px 0 rgba(0,0,0,0.3); }
+  .action-btn.green { background: var(--pipe-green); }
+  .action-btn.gold { background: var(--coin-gold); color: var(--bg-dark); }
+
+  /* Links */
+  a.ext-link {
+    color: var(--coin-gold); text-decoration: underline;
+    font-size: 8px; word-break: break-all;
+  }
+  a.ext-link:hover { color: var(--star-yellow); }
+
+  /* Settings panel */
+  .settings-panel {
+    background: rgba(0,0,0,0.5); border: 4px solid var(--brick);
+    border-radius: 4px; padding: 16px; margin-bottom: 20px;
+  }
+  .settings-panel h3 { font-size: 10px; color: var(--coin-gold); margin-bottom: 12px; }
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 2px solid rgba(255,255,255,0.1);
+    font-size: 8px;
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row input {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px; padding: 6px 10px;
+    background: var(--bg-dark); color: var(--text-white);
+    border: 2px solid var(--brick); border-radius: 2px;
+    width: 200px;
+  }
+
+  /* Toast notifications */
+  .toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: var(--pipe-green); color: var(--text-white);
+    padding: 12px 24px; border-radius: 4px; font-size: 9px;
+    border: 3px solid var(--pipe-dark);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    z-index: 100; display: none;
+    animation: toastIn 0.3s ease-out;
+  }
+  @keyframes toastIn { from { transform: translateX(-50%) translateY(20px); opacity: 0; } }
+
+  /* Ground */
+  .ground {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 40px; z-index: 2;
+    background: var(--ground);
+    border-top: 8px solid var(--brick);
+  }
+  .ground-pattern {
+    position: absolute; top: 8px; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(90deg, var(--ground) 0px, var(--ground) 32px, var(--brick) 32px, var(--brick) 34px);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .title-banner h1 { font-size: 18px; }
+    .score-bar { flex-wrap: wrap; gap: 10px; }
+  }
+
+  /* Mario walking animation at bottom */
+  .mario-runner {
+    position: fixed; bottom: 40px; z-index: 3;
+    font-size: 24px; animation: marioRun 12s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes marioRun {
+    0% { left: -40px; } 100% { left: calc(100% + 40px); }
+  }
+
+  .footer-space { height: 80px; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="clouds">
+  <div class="cloud"></div><div class="cloud"></div><div class="cloud"></div>
+  <div class="cloud"></div><div class="cloud"></div><div class="cloud"></div>
+  <div class="cloud"></div>
+</div>
+
+<div class="container">
+  <div class="title-banner">
+    <h1>🍄 GFC PLAYGROUND 🍄</h1>
+    <div class="subtitle">GOOGLE FOR CLAUDE — SETUP & CONFIG</div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-item">
+      <div class="score-label">SERVICES</div>
+      <div class="score-value" id="servicesCount">0/7</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">COINS</div>
+      <div class="score-value" id="coinCount">000000</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">WORLD</div>
+      <div class="score-value">1-1</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">STATUS</div>
+      <div class="score-value">
+        <span id="connectionText">CHECKING</span>
+        <span id="connectionDot" class="disconnected"></span>
+      </div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">TIME</div>
+      <div class="score-value" id="timeDisplay">000</div>
+    </div>
+  </div>
+
+  <div class="services-grid" id="servicesGrid">
+    <!-- Populated by JS -->
+  </div>
+
+  <div class="pipe-section">
+    <h2>🟢 WARP ZONE — QUICK ACTIONS</h2>
+    <button class="action-btn green" onclick="triggerAction('setup')">🍄 RUN SETUP</button>
+    <button class="action-btn" onclick="triggerAction('status')">❤️ CHECK STATUS</button>
+    <button class="action-btn gold" onclick="triggerAction('test-gemini')">⭐ TEST GEMINI</button>
+    <button class="action-btn green" onclick="triggerAction('test-image')">🎨 TEST IMAGE</button>
+    <br><br>
+    <a class="ext-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">🔗 Google AI Studio — Get API Key</a><br>
+    <a class="ext-link" href="https://console.cloud.google.com/billing" target="_blank" rel="noopener">🔗 Google Cloud Billing</a><br>
+    <a class="ext-link" href="https://console.cloud.google.com" target="_blank" rel="noopener">🔗 Google Cloud Console</a><br>
+    <a class="ext-link" href="https://github.com/bobbyuzda1/google-for-claude" target="_blank" rel="noopener">🔗 GFC GitHub Repo</a>
+  </div>
+
+  <div class="pipe-section">
+    <h2>⚙️ SETTINGS — POWER-UPS</h2>
+    <div class="settings-panel">
+      <h3>📁 OUTPUT PATH</h3>
+      <div class="setting-row">
+        <span>Save files to:</span>
+        <input type="text" id="outputPath" value="./gfc-output/" onchange="saveOutputPath()">
+      </div>
+    </div>
+    <div class="settings-panel">
+      <h3>🔑 QUICK LINKS</h3>
+      <div class="setting-row">
+        <span>Revoke API Keys:</span>
+        <a class="ext-link" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>
+      </div>
+      <div class="setting-row">
+        <span>Firebase Console:</span>
+        <a class="ext-link" href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a>
+      </div>
+      <div class="setting-row">
+        <span>GFC Docs:</span>
+        <a class="ext-link" href="https://github.com/bobbyuzda1/google-for-claude#readme" target="_blank" rel="noopener">README on GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="pipe-section" id="logSection">
+    <h2>📜 MESSAGE LOG</h2>
+    <div id="logMessages" style="font-size:8px; line-height:2; max-height:200px; overflow-y:auto; color: var(--block-yellow);"></div>
+  </div>
+
+  <div class="footer-space"></div>
+</div>
+
+<div class="mario-runner">🏃</div>
+<div class="ground"><div class="ground-pattern"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SERVICES = [
+  { id: 'gemini', name: 'GEMINI', icon: '⭐', desc: 'Image gen, video, TTS, music, search, transcription', checkKey: 'gemini' },
+  { id: 'gcloud', name: 'GOOGLE CLOUD', icon: '☁️', desc: 'Compute, Cloud Run, BigQuery, all GCP services', checkKey: 'gcloud' },
+  { id: 'gcs', name: 'CLOUD STORAGE', icon: '📦', desc: 'Bucket and object management (uses ADC)', checkKey: 'adc' },
+  { id: 'workspace', name: 'WORKSPACE', icon: '📧', desc: 'Drive, Gmail, Calendar, Sheets, Docs', checkKey: 'gws' },
+  { id: 'firebase', name: 'FIREBASE', icon: '🔥', desc: 'Firestore, Auth, Storage, Hosting', checkKey: 'firebase' },
+  { id: 'notebooklm', name: 'NOTEBOOKLM', icon: '📓', desc: 'Notebooks, podcasts, quizzes (unofficial)', checkKey: 'notebooklm' },
+  { id: 'maps', name: 'GOOGLE MAPS', icon: '🗺️', desc: 'Code assistance (free, no auth needed)', checkKey: 'maps', alwaysOn: true },
+];
+
+let coinCount = 0;
+let startTime = Date.now();
+
+// Generate stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 50; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.left = Math.random() * 100 + '%';
+  star.style.top = Math.random() * 60 + '%';
+  star.style.animationDelay = (Math.random() * 3) + 's';
+  starsEl.appendChild(star);
+}
+
+function renderServices(checks) {
+  const grid = document.getElementById('servicesGrid');
+  grid.innerHTML = '';
+  let configured = 0;
+
+  SERVICES.forEach(svc => {
+    const card = document.createElement('div');
+    card.className = 'service-card';
+
+    let status;
+    if (svc.alwaysOn) {
+      status = 'configured';
+    } else if (svc.checkKey === 'gemini') {
+      status = checks.gemini ? 'configured' : 'missing';
+    } else if (svc.checkKey === 'gcloud') {
+      status = checks.gcloud ? 'configured' : 'missing';
+    } else if (svc.checkKey === 'adc') {
+      status = checks.adc ? 'configured' : 'missing';
+    } else if (svc.checkKey === 'gws') {
+      status = checks.gws ? 'configured' : 'missing';
+    } else if (svc.checkKey === 'firebase') {
+      status = checks.firebase ? 'configured' : 'missing';
+    } else if (svc.checkKey === 'notebooklm') {
+      status = checks.notebooklm ? 'configured' : 'missing';
+    } else {
+      status = 'missing';
+    }
+
+    if (status === 'configured') configured++;
+
+    card.innerHTML = `
+      <div class="status-badge ${status}"></div>
+      <div class="icon">${svc.icon}</div>
+      <div class="name">${svc.name}</div>
+      <div class="desc">${svc.desc}</div>
+      <div class="desc" style="margin-top:6px;color:${status === 'configured' ? '#005800' : '#a00000'}">
+        ${status === 'configured' ? '✓ READY' : '✗ NEEDS SETUP'}
+      </div>
+    `;
+
+    card.onclick = () => triggerAction('setup-' + svc.id);
+    grid.appendChild(card);
+  });
+
+  document.getElementById('servicesCount').textContent = configured + '/7';
+
+  // Update coins
+  const newCoins = configured * 100;
+  if (newCoins > coinCount) {
+    coinCount = newCoins;
+    document.getElementById('coinCount').textContent = String(coinCount).padStart(6, '0');
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 3000);
+}
+
+function addLog(msg) {
+  const log = document.getElementById('logMessages');
+  const time = new Date().toLocaleTimeString();
+  log.innerHTML = `<div>[ ${time} ] ${msg}</div>` + log.innerHTML;
+  if (log.children.length > 50) log.removeChild(log.lastChild);
+}
+
+async function fetchStatus() {
+  try {
+    const res = await fetch('/api/status');
+    const data = await res.json();
+    document.getElementById('connectionText').textContent = 'CONNECTED';
+    document.getElementById('connectionDot').className = 'connected';
+    renderServices(data.checks);
+    if (data.prefs && data.prefs.outputPath) {
+      document.getElementById('outputPath').value = data.prefs.outputPath;
+    }
+    return data;
+  } catch (e) {
+    document.getElementById('connectionText').textContent = 'OFFLINE';
+    document.getElementById('connectionDot').className = 'disconnected';
+    addLog('⚠️ Server connection lost');
+    return null;
+  }
+}
+
+async function triggerAction(action) {
+  try {
+    const res = await fetch('/api/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, value: null })
+    });
+    const data = await res.json();
+    showToast(data.message || 'Action sent!');
+    addLog(`🎮 Action: ${action}`);
+  } catch (e) {
+    showToast('Failed to send action');
+    addLog(`❌ Failed: ${action}`);
+  }
+}
+
+async function saveOutputPath() {
+  const path = document.getElementById('outputPath').value;
+  await triggerAction('set-output-path');
+  addLog(`📁 Output path: ${path}`);
+  showToast('Output path updated — return to Claude Code');
+}
+
+// Timer
+setInterval(() => {
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('timeDisplay').textContent = String(elapsed).padStart(3, '0');
+}, 1000);
+
+// Auto-refresh every 3 seconds
+fetchStatus().then(() => addLog('🍄 Playground loaded!'));
+setInterval(fetchStatus, 3000);
+</script>
+</body>
+</html>
