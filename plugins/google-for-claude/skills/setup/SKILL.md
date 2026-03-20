@@ -18,8 +18,8 @@ If no argument, run the full setup flow below.
 Run these commands and report what is already configured:
 
 1. `node --version` — check Node.js 18+ is installed
-2. `gcloud --version` — check gcloud CLI is installed
-3. `echo $GEMINI_API_KEY` — check if Gemini API key is set (DO NOT echo the actual value to the user — just report "set" or "not set")
+2. `which gcloud 2>/dev/null || echo "missing"` — check gcloud CLI is installed
+3. `test -n "$GEMINI_API_KEY" && echo "set" || echo "not set"` — check if Gemini API key is set (DO NOT echo the actual value to the user — just report "set" or "not set")
 4. `test -f ~/.config/gcloud/application_default_credentials.json && echo "exists" || echo "missing"` — check ADC
 5. `npx firebase-tools --version 2>/dev/null` — check firebase-tools
 6. `gws --version 2>/dev/null` — check Workspace CLI
@@ -33,13 +33,38 @@ Report a summary like: "4 of 7 services already configured. Setting up the rest.
 
 For any missing prerequisites, install them automatically. Report what you're installing but proceed without asking — these are standard CLI tools the user has already opted into by running setup.
 
+### npm global install permissions fix
+
+Before installing any npm packages globally, configure npm to use a local prefix to avoid permission errors:
+
+```bash
+mkdir -p ~/.npm-global
+npm config set prefix ~/.npm-global
+export PATH="$HOME/.npm-global/bin:$PATH"
+```
+
+Then append to the user's shell profile (`~/.bashrc` or `~/.zshrc`) if not already present:
+```bash
+export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
+```
+
+### Install missing tools
+
 - **Node.js missing:** "Node.js 18+ is required. Install it with `nvm install --lts` or from nodejs.org."
-- **gcloud CLI missing:** Run `curl https://sdk.cloud.google.com | bash` then `exec -l $SHELL`
+- **gcloud CLI missing:** Warn the user: "The gcloud CLI is a ~500MB download and may take a few minutes to install. It's required for Google Cloud, Cloud Storage, Firebase ADC, and creating a GCP project. If you only want Gemini with an existing project, you can skip this." Then run: `curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir=$HOME` and add `$HOME/google-cloud-sdk/bin` to PATH.
 - **firebase-tools missing:** Run `npm install -g firebase-tools`
 - **Workspace CLI missing:** Run `npm install -g @googleworkspace/cli`
 - **Python 3 missing:** "Python 3 is required for NotebookLM. Install it from python.org or your package manager."
-- **uv missing:** Run `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **uv missing:** Run `curl -LsSf https://astral.sh/uv/install.sh | sh` and add `$HOME/.local/bin` to PATH.
 - **notebooklm-mcp-cli missing:** Run `uv tool install notebooklm-mcp-cli`
+
+### Update PATH after installs
+
+After all installs, run:
+```bash
+export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"
+```
+And ensure these paths are appended to the user's shell profile if not already present.
 
 ## Phase 3 — Service Selection
 
@@ -63,13 +88,33 @@ Skip subsequent steps for any unchecked services.
 
 Walk through each step sequentially. Wait for the user to confirm completion before moving on. Validate after each step.
 
+**IMPORTANT:** For any command that opens a browser or requires interactive input (`gcloud auth login`, `gws auth setup`, `firebase login`, `nlm login`), tell the user: **"Open a separate terminal (not this Claude Code session) and run:"** — these commands require interactive browser auth that cannot run inside Claude Code's terminal.
+
 ### Step 1: Google Cloud Project (required for Gemini, GCloud, GCS, Firebase)
 
-> Do you have an existing Google Cloud project? If yes, tell me the project ID. If not, run:
+First, check if the user has existing projects:
+```bash
+gcloud projects list
+```
+
+If projects exist, ask:
+> I found these existing projects: [list them]. Would you like to use one of these, or create a new dedicated project for GFC?
+>
+> **We recommend creating a new project** so all your GFC services and billing are in one place.
+
+If creating a new project (the default recommendation):
+> **Note:** Google doesn't allow the word "google" in project IDs.
+>
+> Run:
 > ```
-> gcloud projects create my-ai-hub --name="AI Hub"
-> gcloud config set project my-ai-hub
+> gcloud projects create gfc-ai-hub --name="GFC AI Hub"
+> gcloud config set project gfc-ai-hub
 > ```
+
+If using an existing project:
+```
+gcloud config set project <their-project-id>
+```
 
 After project is set, enable required APIs:
 ```
@@ -78,9 +123,24 @@ gcloud services enable aiplatform.googleapis.com generativelanguage.googleapis.c
 
 Validate: Run `gcloud config get-value project` and confirm it returns a project ID.
 
-### Step 2: Gemini API Key (if Gemini selected)
+### Step 2: gcloud Authentication (if GCloud, GCS, or Firebase selected)
 
-> Open **aistudio.google.com/apikey** in your browser, click "Create API key", select your project, and paste the key here.
+> Open a **separate terminal** (not this Claude Code session) and run these commands one at a time:
+> ```
+> gcloud auth login
+> gcloud auth application-default login
+> gcloud auth application-default set-quota-project <your-project-id>
+> ```
+
+Validate: `test -f ~/.config/gcloud/application_default_credentials.json && echo "ADC configured"`.
+
+### Step 3: Gemini API Key (if Gemini selected)
+
+> Open **aistudio.google.com/apikey** in your browser, click "Create API key", and select your project (e.g., `gfc-ai-hub`).
+>
+> **If your new project doesn't appear** in the dropdown, click "Import project" or use the project selector to add it first.
+>
+> Paste the key here when you have it.
 
 IMPORTANT: When the user pastes the key, do NOT echo it back. Immediately guide them to save it:
 
@@ -92,20 +152,14 @@ IMPORTANT: When the user pastes the key, do NOT echo it back. Immediately guide 
 
 Validate: Run a minimal test — `curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KEY" | head -1` should return JSON, not an error.
 
-### Step 3: gcloud Authentication (if GCloud, GCS, or Firebase selected)
-
-> Run these commands one at a time. Each will open your browser:
-> ```
-> gcloud auth login
-> gcloud auth application-default login
-> gcloud auth application-default set-quota-project <your-project-id>
-> ```
-
-Validate: `test -f ~/.config/gcloud/application_default_credentials.json && echo "ADC configured"`.
+After validation, mention:
+> You're on the **free tier** (500 RPD, 10 RPM for Flash). This is fine to get started. If you want higher rate limits and data privacy (your data won't be used for model training), you can enable billing at **console.cloud.google.com/billing** — this is optional.
+>
+> **Note:** Some services (especially image generation on brand new projects) may require a billing account to be linked before the free tier quota activates. If you get a quota error, link a billing account — you still won't be charged unless you exceed free tier limits.
 
 ### Step 4: Workspace OAuth (if Workspace selected)
 
-> Run these commands:
+> Open a **separate terminal** (not this Claude Code session) and run:
 > ```
 > gws auth setup
 > ```
@@ -119,7 +173,7 @@ Validate: Run `gws drive files list --limit 1` and check for a successful respon
 
 ### Step 5: Firebase Login (if Firebase selected)
 
-> Run:
+> Open a **separate terminal** (not this Claude Code session) and run:
 > ```
 > firebase login
 > ```
@@ -129,7 +183,7 @@ Validate: Run `firebase projects:list` and check for a successful response.
 
 ### Step 6: NotebookLM Login (if NotebookLM selected)
 
-> Run:
+> Open a **separate terminal** (not this Claude Code session) and run:
 > ```
 > nlm login
 > ```
