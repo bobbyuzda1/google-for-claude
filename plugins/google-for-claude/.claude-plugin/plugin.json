@@ -2,7 +2,9 @@
   "name": "google-for-claude",
   "description": "Google AI & Cloud services for Claude Code — image gen, video, TTS, music, Workspace, Firebase, and more. One install, one setup wizard.",
   "version": "1.0.0",
-  "author": "Bobby Uzdavines",
+  "author": {
+    "name": "Bobby Uzdavines"
+  },
   "repository": "https://github.com/bobbyuzda1/google-for-claude",
   "license": "MIT",
   "keywords": ["google", "gemini", "workspace", "firebase", "mcp", "ai"]
