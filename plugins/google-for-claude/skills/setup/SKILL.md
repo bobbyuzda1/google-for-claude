@@ -183,15 +183,31 @@ Validate: Run `firebase projects:list` and check for a successful response.
 
 ### Step 6: NotebookLM Login (if NotebookLM selected)
 
+First, check if the user is on WSL by running:
+```bash
+grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
+```
+
+**If native Linux (has a browser):**
 > Open a **separate terminal** (not this Claude Code session) and run:
 > ```
 > nlm login
 > ```
-> This extracts session cookies from Chrome. You must be logged into Google in Chrome.
->
-> **Note:** NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.
 
-Validate: Confirm `nlm login` completed without errors.
+**If WSL (no browser available — most common):**
+> WSL doesn't have a browser installed, so `nlm login` will fail with "No supported browser found." Use the manual method instead:
+>
+> 1. In your **Windows** Chrome/Edge browser, go to **notebooklm.google.com** and make sure you're logged in
+> 2. Install a cookie export extension (e.g., "Get cookies.txt LOCALLY") and export cookies for notebooklm.google.com
+> 3. Open a **separate terminal** and run:
+> ```
+> nlm login --manual
+> ```
+> Follow the prompts to import the cookie file.
+
+**Note:** NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.
+
+Validate: Confirm `nlm login` or `nlm login --manual` completed without errors.
 
 ## Phase 5 — Security Reminders
 

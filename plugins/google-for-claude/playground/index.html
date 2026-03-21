@@ -596,9 +596,15 @@ const SETUP_INSTRUCTIONS = {
     icon: '📓',
     ready: 'NotebookLM is connected!',
     steps: `
-      <p>Open a <strong>separate terminal</strong> and run:</p>
+      <p><strong>Option A — If you have Chrome/Edge installed natively (not WSL):</strong></p>
       <code onclick="copyCode(this)">nlm login</code>
-      <p>This extracts session cookies from Chrome. You must be <strong>logged into Google in Chrome</strong> first.</p>
+      <p><strong>Option B — WSL users (most common):</strong></p>
+      <p>WSL doesn't have a browser, so use the manual cookie import method instead:</p>
+      <p><strong>Step 1:</strong> In your <strong>Windows</strong> Chrome browser, go to <a href="https://notebooklm.google.com" target="_blank">notebooklm.google.com</a> and make sure you're logged in.</p>
+      <p><strong>Step 2:</strong> Install a cookie export extension (e.g., "Get cookies.txt LOCALLY") and export cookies for notebooklm.google.com to a file.</p>
+      <p><strong>Step 3:</strong> Open a <strong>separate terminal</strong> and run:</p>
+      <code onclick="copyCode(this)">nlm login --manual</code>
+      <p>Follow the prompts to import the cookie file.</p>
       <p>⚠️ <strong>Warning:</strong> NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.</p>
     `
   },
