@@ -195,7 +195,7 @@ grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
 > ```
 
 **If WSL (most common):**
-> WSL doesn't have a browser, so run this from **Windows** instead:
+> WSL doesn't have a browser, so run the login from **Windows PowerShell**:
 >
 > 1. Make sure Python is installed on Windows. In **PowerShell**, run `python --version`. If not found:
 >    - Download from **python.org/downloads**
@@ -207,19 +207,26 @@ grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
 > pip install notebooklm-mcp-cli
 > ```
 >
-> 3. Still in **PowerShell**, run:
+> 3. Still in **PowerShell**, authenticate:
 > ```
 > nlm login
 > ```
-> This will open Chrome and authenticate automatically.
+> Chrome will open automatically for Google sign-in.
 >
-> 4. After login succeeds, copy the credentials to WSL. Run this in your **WSL terminal**:
+> 4. Verify it worked:
+> ```
+> nlm login --check
+> ```
+>
+> 5. Copy credentials to WSL. Run this in your **WSL terminal**:
 > ```bash
 > cp -r /mnt/c/Users/$USER/.config/notebooklm-mcp ~/.config/notebooklm-mcp
 > ```
-> (Adjust the Windows username path if needed.)
+> (Adjust the Windows username path if your WSL and Windows usernames differ.)
 
 **Note:** NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.
+
+**Tip:** NotebookLM adds 35 tools to Claude Code — disable it when not in use to save context window. Use `@notebooklm-mcp` in Claude Code to toggle.
 
 Validate: Run `nlm login --check` to confirm credentials are valid.
 
