@@ -230,6 +230,51 @@
   }
 
   .footer-space { height: 80px; }
+
+  /* Setup instructions modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 40, 0.85); z-index: 50;
+    display: none; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  }
+  .modal-overlay.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } }
+
+  .modal {
+    background: var(--pipe-bg); border: 3px solid var(--coin-gold);
+    border-radius: 8px; padding: 28px; max-width: 600px; width: 90%;
+    max-height: 80vh; overflow-y: auto;
+    box-shadow: 0 0 40px rgba(255, 168, 0, 0.3);
+  }
+  .modal h2 { font-size: 20px; color: var(--coin-gold); margin-bottom: 16px; }
+  .modal .modal-status {
+    font-size: 15px; font-weight: 700; margin-bottom: 16px; padding: 10px 14px;
+    border-radius: 4px;
+  }
+  .modal .modal-status.ready { background: rgba(0,200,0,0.15); color: var(--configured); }
+  .modal .modal-status.needed { background: rgba(228,64,64,0.15); color: var(--missing); }
+  .modal p { font-size: 14px; line-height: 1.8; margin-bottom: 12px; color: #ccc; }
+  .modal code {
+    display: block; background: #000030; color: var(--coin-gold);
+    padding: 12px 16px; border-radius: 4px; font-size: 14px;
+    margin: 10px 0; font-family: 'Courier New', monospace;
+    border: 1px solid var(--pipe-border); word-break: break-all;
+    cursor: pointer; position: relative;
+  }
+  .modal code:hover { background: #000050; }
+  .modal code::after {
+    content: '📋 click to copy'; position: absolute; right: 8px; top: 8px;
+    font-size: 11px; color: #666;
+  }
+  .modal .close-btn {
+    font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700;
+    padding: 10px 24px; background: var(--mario-red); color: white;
+    border: 3px solid var(--block-border); border-radius: 4px;
+    cursor: pointer; margin-top: 16px;
+  }
+  .modal .close-btn:hover { background: #f05050; }
+  .modal a { color: var(--coin-gold); }
 </style>
 </head>
 <body>
@@ -323,6 +368,10 @@
   <div class="footer-space"></div>
 </div>
 
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
 <div class="ground"><div class="ground-pattern"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -391,7 +440,7 @@ function renderServices(checks) {
       </div>
     `;
 
-    card.onclick = () => triggerAction('setup-' + svc.id);
+    card.onclick = () => showSetupModal(svc.id, status);
     grid.appendChild(card);
   });
 
@@ -474,6 +523,128 @@ async function saveOutputPath() {
   await triggerAction('set-output-path');
   addLog('📁 Output path: ' + path);
   showToast('Output path updated — return to Claude Code');
+}
+
+// Setup instructions per service
+const SETUP_INSTRUCTIONS = {
+  gemini: {
+    name: 'Gemini',
+    icon: '⭐',
+    ready: 'Gemini API is configured and working!',
+    steps: `
+      <p><strong>Step 1:</strong> Open Google AI Studio to get an API key:</p>
+      <p><a href="https://aistudio.google.com/apikey" target="_blank">🔗 aistudio.google.com/apikey</a></p>
+      <p>Click <strong>"Create API key"</strong> and select your GFC project. If your project doesn't appear, click <strong>"Import project"</strong> first.</p>
+      <p><strong>Step 2:</strong> Open a <strong>separate terminal</strong> and add the key to your shell profile:</p>
+      <code onclick="copyCode(this)">echo 'export GEMINI_API_KEY="YOUR_KEY_HERE"' >> ~/.bashrc && source ~/.bashrc</code>
+      <p><strong>Step 3:</strong> Restart Claude Code so the MCP server picks up the new key.</p>
+      <p>💡 <strong>Tip:</strong> New projects may need <a href="https://console.cloud.google.com/billing" target="_blank">billing linked</a> before image generation quota activates (you won't be charged on the free tier).</p>
+    `
+  },
+  gcloud: {
+    name: 'Google Cloud',
+    icon: '☁️',
+    ready: 'gcloud CLI is authenticated!',
+    steps: `
+      <p><strong>Step 1:</strong> Open a <strong>separate terminal</strong> (not Claude Code) and run:</p>
+      <code onclick="copyCode(this)">gcloud auth login</code>
+      <p>This opens your browser to sign in with your Google account.</p>
+      <p><strong>Step 2:</strong> Set your project:</p>
+      <code onclick="copyCode(this)">gcloud config set project gfc-ai-hub</code>
+      <p><strong>Step 3:</strong> Come back here and click <strong>Refresh Status</strong>.</p>
+    `
+  },
+  gcs: {
+    name: 'Cloud Storage',
+    icon: '📦',
+    ready: 'Application Default Credentials are configured!',
+    steps: `
+      <p>Cloud Storage uses <strong>Application Default Credentials (ADC)</strong>. Open a <strong>separate terminal</strong> and run:</p>
+      <code onclick="copyCode(this)">gcloud auth application-default login</code>
+      <p>Then set the quota project:</p>
+      <code onclick="copyCode(this)">gcloud auth application-default set-quota-project gfc-ai-hub</code>
+      <p>This also enables Firebase and other Google Cloud MCP servers.</p>
+    `
+  },
+  workspace: {
+    name: 'Google Workspace',
+    icon: '📧',
+    ready: 'Workspace OAuth is configured! Drive, Gmail, Calendar are ready.',
+    steps: `
+      <p><strong>Step 1:</strong> Open a <strong>separate terminal</strong> and run the OAuth setup:</p>
+      <code onclick="copyCode(this)">gws auth setup</code>
+      <p>This walks you through creating an OAuth client in Google Cloud Console. Follow the prompts.</p>
+      <p><strong>Step 2:</strong> Then authenticate:</p>
+      <code onclick="copyCode(this)">gws auth login</code>
+      <p><strong>Step 3:</strong> Come back here and click <strong>Refresh Status</strong>.</p>
+      <p>💡 Works with free Gmail accounts — no paid Workspace subscription needed.</p>
+    `
+  },
+  firebase: {
+    name: 'Firebase',
+    icon: '🔥',
+    ready: 'Firebase is authenticated and ready!',
+    steps: `
+      <p>Open a <strong>separate terminal</strong> and run:</p>
+      <code onclick="copyCode(this)">firebase login</code>
+      <p>This opens your browser for authentication. Once complete, come back and click <strong>Refresh Status</strong>.</p>
+      <p>💡 Firebase projects are GCP projects — if you created <code style="display:inline;padding:2px 6px;cursor:default;">gfc-ai-hub</code>, you can use it for Firebase too.</p>
+    `
+  },
+  notebooklm: {
+    name: 'NotebookLM',
+    icon: '📓',
+    ready: 'NotebookLM is connected!',
+    steps: `
+      <p>Open a <strong>separate terminal</strong> and run:</p>
+      <code onclick="copyCode(this)">nlm login</code>
+      <p>This extracts session cookies from Chrome. You must be <strong>logged into Google in Chrome</strong> first.</p>
+      <p>⚠️ <strong>Warning:</strong> NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.</p>
+    `
+  },
+  maps: {
+    name: 'Google Maps',
+    icon: '🗺️',
+    ready: 'Google Maps code assistance is always available — no auth needed!',
+    steps: `
+      <p>✅ <strong>No setup required!</strong> Google Maps code assistance is free and works without authentication.</p>
+      <p>The MCP server provides documentation and code assistance for Google Maps Platform APIs.</p>
+    `
+  }
+};
+
+function showSetupModal(serviceId, status) {
+  const info = SETUP_INSTRUCTIONS[serviceId];
+  if (!info) return;
+
+  const modal = document.getElementById('modalContent');
+  const isReady = status === 'configured';
+
+  modal.innerHTML = `
+    <h2>${info.icon} ${info.name}</h2>
+    <div class="modal-status ${isReady ? 'ready' : 'needed'}">
+      ${isReady ? '✓ ' + info.ready : '✗ Setup needed'}
+    </div>
+    ${isReady ? '<p>' + info.ready + '</p>' : info.steps}
+    <button class="close-btn" onclick="document.getElementById('modalOverlay').classList.remove('active')">CLOSE</button>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('active');
+  addLog('📖 Viewing: ' + info.name + ' setup');
+}
+
+function closeModal(event) {
+  if (event.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+}
+
+function copyCode(el) {
+  const text = el.textContent.replace('📋 click to copy', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied to clipboard!');
+    addLog('📋 Copied: ' + text.substring(0, 50) + '...');
+  });
 }
 
 // Timer
