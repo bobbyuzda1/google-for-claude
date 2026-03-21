@@ -194,20 +194,30 @@ grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
 > nlm login
 > ```
 
-**If WSL (no browser available — most common):**
-> WSL doesn't have a browser installed, so `nlm login` will fail with "No supported browser found." Use the manual method instead:
+**If WSL (most common):**
+> WSL doesn't have a browser, so run this from **Windows** instead:
 >
-> 1. In your **Windows** Chrome/Edge browser, go to **notebooklm.google.com** and make sure you're logged in
-> 2. Install a cookie export extension (e.g., "Get cookies.txt LOCALLY") and export cookies for notebooklm.google.com
-> 3. Open a **separate terminal** and run:
+> 1. Open **PowerShell** (not WSL) and install the NotebookLM CLI:
 > ```
-> nlm login --manual
+> pip install notebooklm-mcp-cli
 > ```
-> Follow the prompts to import the cookie file.
+> (If Python isn't installed on Windows, install it from python.org first — check "Add to PATH" during install.)
+>
+> 2. Still in **PowerShell**, run:
+> ```
+> nlm login
+> ```
+> This will open Chrome and authenticate automatically.
+>
+> 3. After login succeeds, copy the credentials to WSL so the MCP server can use them:
+> ```bash
+> cp -r /mnt/c/Users/$USER/.config/notebooklm-mcp ~/.config/notebooklm-mcp
+> ```
+> (Adjust the Windows username path if needed.)
 
 **Note:** NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.
 
-Validate: Confirm `nlm login` or `nlm login --manual` completed without errors.
+Validate: Run `nlm login --check` to confirm credentials are valid.
 
 ## Phase 5 — Security Reminders
 
