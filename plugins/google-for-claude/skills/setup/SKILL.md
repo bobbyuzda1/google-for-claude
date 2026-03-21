@@ -197,25 +197,23 @@ grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
 **If WSL (most common):**
 > WSL doesn't have a browser, so run the login from **Windows PowerShell**:
 >
-> 1. Make sure Python is installed on Windows. In **PowerShell**, run `python --version`. If not found:
->    - Download from **python.org/downloads**
->    - **Check "Add Python to PATH"** at the bottom of the installer before clicking Install
->    - **Close and reopen PowerShell** after installing
+> 1. Make sure Python is installed on Windows. In **PowerShell**, run `python --version`. If not found, download from **python.org/downloads** and install.
 >
 > 2. In **PowerShell**, install the NotebookLM CLI:
 > ```
 > pip install notebooklm-mcp-cli
 > ```
+> If you see a warning that Scripts is "not on PATH", that's fine — use the full path in the next step.
 >
-> 3. Still in **PowerShell**, authenticate:
+> 3. Authenticate. If `nlm login` isn't recognized, use the full path:
 > ```
-> nlm login
+> %LOCALAPPDATA%\Python\pythoncore-3.14-64\Scripts\nlm login
 > ```
-> Chrome will open automatically for Google sign-in.
+> Chrome will open in a **new window** (not your existing browser). You'll need to **sign into Google again** in that window. After sign-in, it authenticates automatically.
 >
 > 4. Verify it worked:
 > ```
-> nlm login --check
+> %LOCALAPPDATA%\Python\pythoncore-3.14-64\Scripts\nlm login --check
 > ```
 >
 > 5. Copy credentials to WSL. Run this in your **WSL terminal**:

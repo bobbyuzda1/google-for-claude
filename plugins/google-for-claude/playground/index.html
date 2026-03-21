@@ -597,17 +597,15 @@ const SETUP_INSTRUCTIONS = {
     ready: 'NotebookLM is connected!',
     steps: `
       <p><strong>WSL users:</strong> Since WSL doesn't have a browser, run the login from <strong>Windows PowerShell</strong>.</p>
-      <p><strong>Step 1:</strong> Make sure Python is installed on Windows. Open <strong>PowerShell</strong> and run <code style="display:inline;padding:2px 6px;cursor:default;">python --version</code>. If it's not found:</p>
-      <p>→ Download from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a></p>
-      <p>→ <strong>Check "Add Python to PATH"</strong> at the bottom of the installer before clicking Install</p>
-      <p>→ <strong>Close and reopen PowerShell</strong> after installing</p>
+      <p><strong>Step 1:</strong> Make sure Python is installed on Windows. Open <strong>PowerShell</strong> and run <code style="display:inline;padding:2px 6px;cursor:default;">python --version</code>. If it's not found, download from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a> and install.</p>
       <p><strong>Step 2:</strong> Install the NotebookLM CLI. In <strong>PowerShell</strong>, run:</p>
       <code onclick="copyCode(this)">pip install notebooklm-mcp-cli</code>
-      <p><strong>Step 3:</strong> Still in <strong>PowerShell</strong>, authenticate:</p>
-      <code onclick="copyCode(this)">nlm login</code>
-      <p>Chrome will open automatically for Google sign-in.</p>
+      <p>If you see a warning that Scripts is "not on PATH", that's fine — we'll use the full path in the next step.</p>
+      <p><strong>Step 3:</strong> Authenticate. If <code style="display:inline;padding:2px 6px;cursor:default;">nlm login</code> isn't recognized, use the full path instead:</p>
+      <code onclick="copyCode(this)">%LOCALAPPDATA%\Python\pythoncore-3.14-64\Scripts\nlm login</code>
+      <p>Chrome will open in a <strong>new window</strong> (not your existing browser). You'll need to <strong>sign into Google again</strong> in that window — it won't use your existing session. After you sign in, it authenticates automatically.</p>
       <p><strong>Step 4:</strong> Verify it worked:</p>
-      <code onclick="copyCode(this)">nlm login --check</code>
+      <code onclick="copyCode(this)">%LOCALAPPDATA%\Python\pythoncore-3.14-64\Scripts\nlm login --check</code>
       <p><strong>Step 5:</strong> Copy credentials to WSL. Run this in your <strong>WSL terminal</strong>:</p>
       <code onclick="copyCode(this)">cp -r /mnt/c/Users/$USER/.config/notebooklm-mcp ~/.config/notebooklm-mcp 2>/dev/null || cp -r "/mnt/c/Users/$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\\r')/.config/notebooklm-mcp" ~/.config/notebooklm-mcp</code>
       <p><strong>Native Linux users:</strong> Just run <code style="display:inline;padding:2px 6px;cursor:default;">nlm login</code> directly.</p>
