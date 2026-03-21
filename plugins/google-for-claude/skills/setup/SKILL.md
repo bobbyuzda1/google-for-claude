@@ -218,9 +218,9 @@ grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
 >
 > 5. Copy credentials to WSL. Run this in your **WSL terminal**:
 > ```bash
-> cp -r /mnt/c/Users/$USER/.config/notebooklm-mcp ~/.config/notebooklm-mcp
+> cp -r /mnt/c/Users/$USER/.notebooklm-mcp-cli ~/.notebooklm-mcp-cli
 > ```
-> (Adjust the Windows username path if your WSL and Windows usernames differ.)
+> (If your WSL username differs from Windows, replace `$USER` with your Windows username.)
 
 **Note:** NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.
 
