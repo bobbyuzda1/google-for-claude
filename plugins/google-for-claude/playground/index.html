@@ -597,13 +597,16 @@ const SETUP_INSTRUCTIONS = {
     ready: 'NotebookLM is connected!',
     steps: `
       <p><strong>WSL users:</strong> Since WSL doesn't have a browser, run this from a <strong>Windows terminal</strong> (PowerShell or CMD) — not WSL.</p>
-      <p><strong>Step 1:</strong> Install the NotebookLM CLI on Windows. Open <strong>PowerShell</strong> and run:</p>
+      <p><strong>Step 1:</strong> Make sure Python is installed on Windows. Open <strong>PowerShell</strong> and run <code style="display:inline;padding:2px 6px;cursor:default;">python --version</code>. If it's not found:</p>
+      <p>→ Download from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a></p>
+      <p>→ <strong>Check "Add Python to PATH"</strong> at the bottom of the installer before clicking Install</p>
+      <p>→ <strong>Close and reopen PowerShell</strong> after installing</p>
+      <p><strong>Step 2:</strong> Install the NotebookLM CLI. In <strong>PowerShell</strong>, run:</p>
       <code onclick="copyCode(this)">pip install notebooklm-mcp-cli</code>
-      <p>(If you don't have Python on Windows, install it first from <a href="https://www.python.org/downloads/" target="_blank">python.org</a> — check "Add to PATH" during install.)</p>
-      <p><strong>Step 2:</strong> Still in <strong>PowerShell</strong>, run:</p>
+      <p><strong>Step 3:</strong> Still in <strong>PowerShell</strong>, run:</p>
       <code onclick="copyCode(this)">nlm login</code>
       <p>This will open Chrome and authenticate automatically.</p>
-      <p><strong>Step 3:</strong> After login succeeds, copy the credentials to WSL so the MCP server can use them:</p>
+      <p><strong>Step 4:</strong> After login succeeds, copy the credentials to WSL so the MCP server can use them. Run this in your <strong>WSL terminal</strong>:</p>
       <code onclick="copyCode(this)">cp -r /mnt/c/Users/$USER/.config/notebooklm-mcp ~/.config/notebooklm-mcp 2>/dev/null || cp -r "/mnt/c/Users/$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d '\\r')/.config/notebooklm-mcp" ~/.config/notebooklm-mcp</code>
       <p><strong>Native Linux users:</strong> Just run <code style="display:inline;padding:2px 6px;cursor:default;">nlm login</code> directly — Chrome will open.</p>
       <p>⚠️ <strong>Warning:</strong> NotebookLM MCP uses reverse-engineered APIs — it may break without notice if Google changes their internal API.</p>

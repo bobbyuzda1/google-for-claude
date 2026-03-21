@@ -197,19 +197,23 @@ grep -qi microsoft /proc/version 2>/dev/null && echo "WSL" || echo "native"
 **If WSL (most common):**
 > WSL doesn't have a browser, so run this from **Windows** instead:
 >
-> 1. Open **PowerShell** (not WSL) and install the NotebookLM CLI:
+> 1. Make sure Python is installed on Windows. In **PowerShell**, run `python --version`. If not found:
+>    - Download from **python.org/downloads**
+>    - **Check "Add Python to PATH"** at the bottom of the installer before clicking Install
+>    - **Close and reopen PowerShell** after installing
+>
+> 2. In **PowerShell**, install the NotebookLM CLI:
 > ```
 > pip install notebooklm-mcp-cli
 > ```
-> (If Python isn't installed on Windows, install it from python.org first — check "Add to PATH" during install.)
 >
-> 2. Still in **PowerShell**, run:
+> 3. Still in **PowerShell**, run:
 > ```
 > nlm login
 > ```
 > This will open Chrome and authenticate automatically.
 >
-> 3. After login succeeds, copy the credentials to WSL so the MCP server can use them:
+> 4. After login succeeds, copy the credentials to WSL. Run this in your **WSL terminal**:
 > ```bash
 > cp -r /mnt/c/Users/$USER/.config/notebooklm-mcp ~/.config/notebooklm-mcp
 > ```
