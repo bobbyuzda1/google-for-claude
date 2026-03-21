@@ -607,7 +607,7 @@ const SETUP_INSTRUCTIONS = {
       <p><strong>Step 4:</strong> Verify it worked:</p>
       <code onclick="copyCode(this)">%LOCALAPPDATA%\Python\pythoncore-3.14-64\Scripts\nlm login --check</code>
       <p><strong>Step 5:</strong> Copy credentials to WSL. Run this in your <strong>WSL terminal</strong>:</p>
-      <code onclick="copyCode(this)">cp -r /mnt/c/Users/$USER/.notebooklm-mcp-cli ~/.notebooklm-mcp-cli</code>
+      <code onclick="copyCode(this)">mkdir -p ~/.notebooklm-mcp-cli/profiles/default && cp /mnt/c/Users/$USER/.notebooklm-mcp-cli/profiles/default/* ~/.notebooklm-mcp-cli/profiles/default/</code>
       <p>(If your WSL username differs from Windows, replace <code style="display:inline;padding:2px 6px;cursor:default;">$USER</code> with your Windows username.)</p>
       <p><strong>Native Linux users:</strong> Just run <code style="display:inline;padding:2px 6px;cursor:default;">nlm login</code> directly.</p>
       <hr style="border-color:#333;margin:16px 0;">
