@@ -231,6 +231,24 @@
 
   .footer-space { height: 80px; }
 
+  /* Copyright footer */
+  .copyright-footer {
+    border-top: 2px solid rgba(255,255,255,0.1);
+    padding: 24px 20px 60px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .copyright-footer img {
+    height: 24px; width: auto; margin-bottom: 12px; opacity: 0.6;
+  }
+  .copyright-footer p {
+    font-size: 12px; color: #666; line-height: 1.8;
+  }
+  .copyright-footer a {
+    color: #888; text-decoration: underline;
+  }
+  .copyright-footer a:hover { color: var(--coin-gold); }
+
   /* Setup instructions modal */
   .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -369,6 +387,12 @@
     <div id="logMessages" style="font-size:13px; line-height:2; max-height:200px; overflow-y:auto; color: var(--block-yellow);"></div>
   </div>
 
+  <div class="copyright-footer">
+    <a href="https://uzdavines.ai" target="_blank" rel="noopener"><img src="/logo-white.png" alt="Uzdavines.ai"></a>
+    <p>&copy; 2026 Bobby Uzdavines. All rights reserved.<br>
+    <a href="https://uzdavines.ai" target="_blank" rel="noopener">uzdavines.ai</a></p>
+  </div>
+
   <div class="footer-space"></div>
 </div>
 
@@ -390,10 +414,22 @@ const SERVICES = [
   { id: 'maps', name: 'GOOGLE MAPS', icon: '🗺️', desc: 'Code assistance (free, no auth needed)', checkKey: 'maps', alwaysOn: true },
 ];
 
-let coinCount = 0;
+let coinCount = parseInt(localStorage.getItem('gfc-coins') || '0');
 let startTime = Date.now();
 let lives = parseInt(localStorage.getItem('gfc-lives') || '100');
 document.getElementById('livesCount').textContent = '❤️ ' + lives;
+document.getElementById('coinCount').textContent = String(coinCount).padStart(6, '0');
+
+const COIN_AMOUNTS = [5, 10, 15, 25, 35, 50, 75, 100, 150, 215];
+let coinIndex = 0;
+
+function addCoins() {
+  const amount = COIN_AMOUNTS[coinIndex % COIN_AMOUNTS.length];
+  coinIndex++;
+  coinCount += amount;
+  localStorage.setItem('gfc-coins', coinCount);
+  document.getElementById('coinCount').textContent = String(coinCount).padStart(6, '0');
+}
 
 function loseLife() {
   lives--;
@@ -458,12 +494,6 @@ function renderServices(checks) {
   });
 
   document.getElementById('servicesCount').textContent = configured + '/7';
-
-  const newCoins = configured * 100;
-  if (newCoins > coinCount) {
-    coinCount = newCoins;
-    document.getElementById('coinCount').textContent = String(coinCount).padStart(6, '0');
-  }
 }
 
 function showToast(msg) {
@@ -486,6 +516,7 @@ async function fetchStatus() {
     const data = await res.json();
     document.getElementById('connectionText').textContent = 'CONNECTED';
     document.getElementById('connectionDot').className = 'connected';
+    addCoins();
     renderServices(data.checks);
     if (data.checks && data.checks.project) {
       document.getElementById('projectName').textContent = data.checks.project;
@@ -526,8 +557,7 @@ async function triggerAction(action) {
     const data = await res.json();
     showToast(data.message || 'Action sent!');
     addLog('🎮 Action: ' + action);
-    coinCount += 50;
-    document.getElementById('coinCount').textContent = String(coinCount).padStart(6, '0');
+    addCoins();
   } catch (e) {
     showToast('Failed to send action');
     addLog('❌ Failed: ' + action);
@@ -662,6 +692,7 @@ function showSetupModal(serviceId, status) {
 
   document.getElementById('modalOverlay').classList.add('active');
   addLog('📖 Viewing: ' + info.name + ' setup');
+  addCoins();
 }
 
 function closeModal(event) {
@@ -675,6 +706,7 @@ function copyCode(el) {
   navigator.clipboard.writeText(text).then(() => {
     showToast('Copied to clipboard!');
     addLog('📋 Copied: ' + text.substring(0, 50) + '...');
+    addCoins();
   });
 }
 
