@@ -238,14 +238,20 @@
     text-align: center;
     margin-top: 20px;
   }
-  .copyright-footer img {
-    height: 24px; width: auto; margin-bottom: 12px; opacity: 0.6;
+  .copyright-footer .logo-text {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 18px; font-weight: 700; letter-spacing: 3px;
+    color: rgba(255,255,255,0.6); margin-bottom: 12px;
+    display: inline-block;
+  }
+  .copyright-footer .logo-text .prompt {
+    color: var(--coin-gold); opacity: 0.8;
   }
   .copyright-footer p {
     font-size: 12px; color: #666; line-height: 1.8;
   }
   .copyright-footer a {
-    color: #888; text-decoration: underline;
+    color: #888; text-decoration: none;
   }
   .copyright-footer a:hover { color: var(--coin-gold); }
 
@@ -388,7 +394,7 @@
   </div>
 
   <div class="copyright-footer">
-    <a href="https://uzdavines.ai" target="_blank" rel="noopener"><img src="/logo-white.png" alt="Uzdavines.ai"></a>
+    <a href="https://uzdavines.ai" target="_blank" rel="noopener" class="logo-text"><span class="prompt">&gt;_</span>UZDAVINES</a>
     <p>&copy; 2026 Bobby Uzdavines. All rights reserved.<br>
     <a href="https://uzdavines.ai" target="_blank" rel="noopener">uzdavines.ai</a></p>
   </div>
