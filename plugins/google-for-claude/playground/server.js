@@ -50,11 +50,12 @@ function checkStatus() {
   const adcPath = path.join(process.env.HOME, '.config/gcloud/application_default_credentials.json');
   checks.adc = fs.existsSync(adcPath);
 
-  // Firebase — installed AND authenticated (projects:list works)
+  // Firebase — installed AND authenticated
   const fbVersion = run('npx firebase-tools --version 2>/dev/null');
   if (fbVersion) {
-    const fbProjects = run('npx firebase-tools projects:list --limit 1 2>/dev/null');
-    checks.firebase = fbProjects && !fbProjects.includes('authenticate') ? fbVersion : false;
+    // projects:list without --limit flag, check if it returns project data or auth error
+    const fbProjects = run('npx firebase-tools projects:list 2>&1');
+    checks.firebase = fbProjects && !fbProjects.includes('authenticate') && !fbProjects.includes('error:') ? fbVersion : false;
   } else {
     checks.firebase = null;
   }
@@ -71,8 +72,9 @@ function checkStatus() {
   // NotebookLM — installed AND authenticated
   const nlmInstalled = run('which nlm');
   if (nlmInstalled) {
-    const nlmStatus = run('nlm status 2>/dev/null');
-    checks.notebooklm = nlmStatus && !nlmStatus.includes('not logged') && !nlmStatus.includes('error') ? true : false;
+    // nlm login --check returns "Authentication valid!" on success
+    const nlmCheck = run('nlm login --check 2>&1');
+    checks.notebooklm = nlmCheck && nlmCheck.includes('Authentication valid') ? true : false;
   } else {
     checks.notebooklm = false;
   }
