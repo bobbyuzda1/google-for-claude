@@ -294,7 +294,7 @@
 
   <div class="score-bar">
     <div class="score-item">
-      <div class="score-label">SERVICES</div>
+      <div class="score-label">LEVELS</div>
       <div class="score-value" id="servicesCount">0/7</div>
     </div>
     <div class="score-item">
@@ -302,7 +302,11 @@
       <div class="score-value" id="coinCount">000000</div>
     </div>
     <div class="score-item">
-      <div class="score-label">PROJECT</div>
+      <div class="score-label">LIVES</div>
+      <div class="score-value" id="livesCount">❤️ 100</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">WORLD</div>
       <div class="score-value" id="projectName">---</div>
     </div>
     <div class="score-item">
@@ -388,6 +392,15 @@ const SERVICES = [
 
 let coinCount = 0;
 let startTime = Date.now();
+let lives = parseInt(localStorage.getItem('gfc-lives') || '100');
+document.getElementById('livesCount').textContent = '❤️ ' + lives;
+
+function loseLife() {
+  lives--;
+  if (lives <= 0) lives = 100;
+  localStorage.setItem('gfc-lives', lives);
+  document.getElementById('livesCount').textContent = '❤️ ' + lives;
+}
 
 // Generate stars
 const starsEl = document.getElementById('stars');
@@ -487,6 +500,7 @@ async function fetchStatus() {
     document.getElementById('connectionText').textContent = 'OFFLINE';
     document.getElementById('connectionDot').className = 'disconnected';
     addLog('⚠️ Server connection lost');
+    loseLife();
     return null;
   }
 }
@@ -512,9 +526,12 @@ async function triggerAction(action) {
     const data = await res.json();
     showToast(data.message || 'Action sent!');
     addLog('🎮 Action: ' + action);
+    coinCount += 50;
+    document.getElementById('coinCount').textContent = String(coinCount).padStart(6, '0');
   } catch (e) {
     showToast('Failed to send action');
     addLog('❌ Failed: ' + action);
+    loseLife();
   }
 }
 
