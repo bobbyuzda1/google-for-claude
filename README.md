@@ -1,6 +1,6 @@
 # Google for Claude — Marketplace
 
-A Claude Code plugin marketplace for Google AI & Cloud services.
+A Claude Code plugin marketplace for Google AI & Cloud services. One install, one setup wizard — image gen, video, TTS, music, Drive, Gmail, Calendar, Firebase, and more.
 
 ## Install
 
@@ -11,4 +11,14 @@ A Claude Code plugin marketplace for Google AI & Cloud services.
 /google-for-claude:setup
 ```
 
-See [plugin README](plugins/google-for-claude/README.md) for full documentation.
+## Documentation
+
+See the [plugin README](plugins/google-for-claude/README.md) for full documentation, commands, and setup tips.
+
+## Contributing
+
+See [CONTRIBUTING.md](plugins/google-for-claude/CONTRIBUTING.md) for how to get involved.
+
+## License
+
+MIT

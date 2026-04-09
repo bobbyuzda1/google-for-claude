@@ -5,13 +5,8 @@ A Claude Code plugin that brings Google AI and Cloud services into your terminal
 ## Install
 
 ```
-# Add the marketplace
 /plugin marketplace add bobbyuzda1/google-for-claude
-
-# Install the plugin
 /plugin install google-for-claude
-
-# Reload
 /reload-plugins
 ```
 
@@ -21,6 +16,12 @@ Run the interactive setup wizard:
 
 ```
 /google-for-claude:setup
+```
+
+Or launch the visual dashboard:
+
+```
+/google-for-claude:playground
 ```
 
 The wizard will:
@@ -35,10 +36,12 @@ The wizard will:
 
 - **Browser auth commands** (gcloud, gws, firebase, nlm) must be run in a **separate terminal**, not inside Claude Code
 - The wizard will recommend creating a **new GCP project** — this keeps your GFC services and billing isolated
+- **"google" is not allowed in GCP project IDs** — use `gfc-ai-hub` or similar
 - **New projects** may need a billing account linked before image generation quota activates (you won't be charged on the free tier)
 - If your new project doesn't appear in AI Studio's API key dropdown, click **"Import project"** to add it
+- **WSL users:** NotebookLM login must be done from Windows PowerShell (not WSL), then credentials copied to WSL
 
-## Quick Start
+## Commands
 
 After setup, use these commands:
 
@@ -53,8 +56,9 @@ After setup, use these commands:
 | `/google-for-claude:drive "find reports"` | Search Google Drive |
 | `/google-for-claude:mail "unread"` | Check Gmail |
 | `/google-for-claude:calendar "this week"` | View calendar events |
-| `/google-for-claude:models` | Model ID reference |
+| `/google-for-claude:models` | Model ID quick reference |
 | `/google-for-claude:status` | Check credential health |
+| `/google-for-claude:playground` | Launch visual dashboard |
 | `/google-for-claude:setup` | Re-run setup wizard |
 
 You can also just ask Claude naturally — e.g., "generate an image of a sunset using Gemini" — and the right skill will activate automatically.
@@ -71,6 +75,16 @@ Some commands support flags for model selection:
 - `/google-for-claude:music "prompt" --bpm 120` — Set BPM for music generation
 - `/google-for-claude:transcribe file.mp3 --speakers` — Include speaker labels
 - `/google-for-claude:transcribe file.mp3 --timestamps` — Include timestamps
+
+## Visual Dashboard (Playground)
+
+GFC includes a Mario-themed visual dashboard you can launch with `/google-for-claude:playground`. It shows:
+
+- Real-time service configuration status (auto-refreshes every 3 seconds)
+- Click any service card for step-by-step setup instructions with click-to-copy commands
+- Quick action buttons for setup, status checks, and testing
+- Links to Google AI Studio, Cloud Console, and GitHub
+- Fun gamification (coins, lives, levels)
 
 ## Services Included
 
@@ -107,10 +121,11 @@ Most services work with a free Google account. No credit card required to get st
 ## Limitations
 
 - **Consumer subscriptions don't grant API access.** If you pay for Gemini Advanced/Ultra, that subscription does not provide API access. The API has its own free tier and paid tiers via API key.
-- **NotebookLM uses an unofficial API** that may break without notice if Google changes their internal endpoints.
+- **NotebookLM uses an unofficial API** that may break without notice if Google changes their internal endpoints. Cookies expire periodically and require re-authentication.
 - **Search grounding via API requires billing** — the free tier only works in Google AI Studio's playground.
 - **Veo cannot generate video from images with real faces** — Google's safety filter blocks reference images containing recognizable human faces. Use text-only prompts or stylized images instead.
 - **New GCP projects may need billing linked** before image generation free tier quota activates.
+- **WSL users** need to run NotebookLM login from Windows PowerShell, then copy credentials to WSL.
 
 ## Companion Tool
 
@@ -127,6 +142,10 @@ npm install -g @google/gemini-cli
 - OAuth tokens are managed by Google's CLIs in `~/.config/`
 - Run `/google-for-claude:status` to check credential health without exposing secrets
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute. Issues and PRs welcome on [GitHub](https://github.com/bobbyuzda1/google-for-claude).
+
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE)
