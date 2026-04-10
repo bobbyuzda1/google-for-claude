@@ -1,5 +1,5 @@
-# Internal reference docs — not part of the plugin
-docs/
+# Internal reference docs at repo root — not part of the plugin
+/docs/
 Google_Workspace_for_Claude_Code.md
 CLAUDE.md
 firebase-debug.log
