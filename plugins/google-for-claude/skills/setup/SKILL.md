@@ -123,18 +123,16 @@ gcloud services enable aiplatform.googleapis.com generativelanguage.googleapis.c
 
 Validate: Run `gcloud config get-value project` and confirm it returns a project ID.
 
-### Step 2: gcloud Authentication (if GCloud, GCS, or Firebase selected)
+### Step 2: Basic gcloud Login (required for project management)
 
-> Open a **separate terminal** (not this Claude Code session) and run these commands one at a time:
+> Open a **separate terminal** (not this Claude Code session) and run:
 > ```
 > gcloud auth login
-> gcloud auth application-default login
-> gcloud auth application-default set-quota-project <your-project-id>
 > ```
 
-Validate: `test -f ~/.config/gcloud/application_default_credentials.json && echo "ADC configured"`.
+This is a lightweight sign-in that lets gcloud CLI manage your project. It's separate from ADC (Application Default Credentials), which comes later only if needed.
 
-### Step 3: Gemini API Key (if Gemini selected)
+### Step 3: Gemini API Key (most users want this — image gen, video, TTS, music, transcription)
 
 > Open **aistudio.google.com/apikey** in your browser, click "Create API key", and select your project (e.g., `gfc-ai-hub`).
 >
@@ -157,7 +155,9 @@ After validation, mention:
 >
 > **Note:** Some services (especially image generation on brand new projects) may require a billing account to be linked before the free tier quota activates. If you get a quota error, link a billing account — you still won't be charged unless you exceed free tier limits.
 
-### Step 4: Workspace OAuth (if Workspace selected)
+### Step 4: Google Workspace OAuth (Drive, Gmail, Calendar, Sheets, Docs)
+
+Most users want this right after Gemini — it powers all your day-to-day Google services.
 
 > Open a **separate terminal** (not this Claude Code session) and run:
 > ```
@@ -171,7 +171,19 @@ After validation, mention:
 
 Validate: Run `gws drive files list --limit 1` and check for a successful response.
 
-### Step 5: Firebase Login (if Firebase selected)
+### Step 5: Application Default Credentials (ADC — only if using Cloud Storage, BigQuery, or Firebase MCP)
+
+Skip this step if you're only using Gemini + Workspace + NotebookLM. ADC is needed for `@google-cloud/*` MCP servers and the Firebase MCP server.
+
+> Open a **separate terminal** and run:
+> ```
+> gcloud auth application-default login
+> gcloud auth application-default set-quota-project <your-project-id>
+> ```
+
+Validate: `test -f ~/.config/gcloud/application_default_credentials.json && echo "ADC configured"`.
+
+### Step 6: Firebase Login (only if using Firebase)
 
 > Open a **separate terminal** (not this Claude Code session) and run:
 > ```
@@ -181,7 +193,7 @@ Validate: Run `gws drive files list --limit 1` and check for a successful respon
 
 Validate: Run `firebase projects:list` and check for a successful response.
 
-### Step 6: NotebookLM Login (if NotebookLM selected)
+### Step 7: NotebookLM Login (if NotebookLM selected)
 
 First, check if the user is on WSL by running:
 ```bash
