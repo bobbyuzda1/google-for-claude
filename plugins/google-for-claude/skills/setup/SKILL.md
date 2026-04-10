@@ -166,21 +166,47 @@ After validation, mention:
 >
 > **Note:** Some services (especially image generation on brand new projects) may require a billing account to be linked before the free tier quota activates. If you get a quota error, link a billing account — you still won't be charged unless you exceed free tier limits.
 
-### Step 4: Google Workspace OAuth (Drive, Gmail, Calendar, Sheets, Docs)
+### Step 4: Google Workspace OAuth (Drive, Gmail, Calendar, Sheets, Docs, and more)
 
 Most users want this right after Gemini — it powers all your day-to-day Google services.
 
+> First, verify `gws` is on your PATH:
+> ```
+> which gws
+> ```
+> If "not found," run: `grep -q ".npm-global/bin" ~/.bashrc || echo 'export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc`
+
 > Open a **separate terminal** (not this Claude Code session) and run:
 > ```
-> gws auth setup
+> gws auth setup --project gfc-ai-hub --login
 > ```
-> This will walk you through creating an OAuth client in Google Cloud Console. Follow the prompts.
-> Then:
-> ```
-> gws auth login
-> ```
+> This will walk you through creating an OAuth client in Google Cloud Console, then open a browser for authentication.
 
-Validate: Run `gws drive files list --limit 1` and check for a successful response.
+**When the scope picker appears, here's what to enable:**
+
+**Always enable (works with free Gmail):**
+- ✅ Google Drive
+- ✅ Gmail
+- ✅ Google Calendar
+- ✅ Google Sheets
+- ✅ Google Docs
+- ✅ Google Slides
+- ✅ Google Tasks
+- ✅ People (Contacts)
+- ✅ Google Forms
+- ✅ Google Keep
+- ✅ Apps Script (devs: turn on Apps Script API at script.google.com/home/usersettings)
+
+**Enable ONLY if you have a paid Workspace subscription:**
+- ⚠️ Google Chat — requires Workspace Business Starter+
+- ⚠️ Google Meet — basic meeting links work on free tier, but transcripts/recordings require Business Standard+
+
+**Skip (admin-only or unrelated):**
+- ❌ Google Vault, Admin SDK, Cloud Identity, Groups Settings, Reseller, Licensing, Alert Center, Classroom, Cloud Pub/Sub
+
+For full details on each Workspace service — what it does, use cases, free vs paid — see `docs/workspace-services.md` in the plugin repo.
+
+Validate: Run `gws drive files list --params '{"pageSize": 1}'` and check for a successful response.
 
 ### Step 5: Application Default Credentials (ADC — only if using Cloud Storage, BigQuery, or Firebase MCP)
 

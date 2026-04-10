@@ -658,16 +658,23 @@ const SETUP_INSTRUCTIONS = {
   workspace: {
     name: 'Google Workspace',
     icon: '📧',
-    ready: 'Workspace OAuth is configured! Drive, Gmail, Calendar are ready.',
+    ready: 'Workspace OAuth is configured! Drive, Gmail, Calendar, and more are ready.',
     steps: `
       <p><strong>Step 1:</strong> Make sure the <code style="display:inline;padding:2px 6px;cursor:default;">gws</code> command is on your PATH. In a <strong>separate terminal</strong>, run:</p>
       <code onclick="copyCode(this)">grep -q ".npm-global/bin" ~/.bashrc || echo 'export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc</code>
-      <p>This permanently adds <code style="display:inline;padding:2px 6px;cursor:default;">gws</code>, <code style="display:inline;padding:2px 6px;cursor:default;">nlm</code>, and <code style="display:inline;padding:2px 6px;cursor:default;">gcloud</code> to your PATH so new terminals can find them.</p>
       <p><strong>Step 2:</strong> Run the OAuth setup (ties it to your GCP project):</p>
       <code onclick="copyCode(this)">gws auth setup --project gfc-ai-hub --login</code>
-      <p>This walks you through creating an OAuth client in Google Cloud Console and opens a browser for authentication. Follow the prompts.</p>
-      <p><strong>Step 3:</strong> Come back here and click <strong>Refresh Status</strong>.</p>
-      <p>💡 Works with free Gmail accounts — no paid Workspace subscription needed.</p>
+      <p>This walks you through creating an OAuth client in Google Cloud Console and opens a browser for authentication.</p>
+      <p><strong>Step 3: When the scope picker appears</strong> — here's what to enable:</p>
+      <p style="margin-top:10px;"><strong style="color:var(--configured);">✅ Always enable (works with free Gmail):</strong></p>
+      <p style="font-size:13px;line-height:1.8;">Drive · Gmail · Calendar · Sheets · Docs · Slides · Tasks · People (Contacts) · Forms · Keep · Apps Script</p>
+      <p style="margin-top:10px;"><strong style="color:var(--partial);">⚠️ Paid Workspace only:</strong></p>
+      <p style="font-size:13px;line-height:1.8;"><strong>Chat</strong> — requires Workspace Business Starter+<br><strong>Meet</strong> — basic works on free tier, but transcripts/recordings need Business Standard+</p>
+      <p style="margin-top:10px;"><strong style="color:var(--missing);">❌ Skip (admin-only):</strong></p>
+      <p style="font-size:13px;line-height:1.8;">Vault · Admin SDK · Cloud Identity · Groups Settings · Reseller · Licensing · Alert Center · Classroom · Cloud Pub/Sub</p>
+      <p style="margin-top:10px;">📖 <strong>Full service details:</strong> <a href="https://github.com/bobbyuzda1/google-for-claude/blob/main/plugins/google-for-claude/docs/workspace-services.md" target="_blank">Workspace Services Reference</a> — what each service does, common use cases, free vs paid tier requirements.</p>
+      <p style="margin-top:10px;">📖 <strong>Apps Script users:</strong> After auth, enable the Apps Script API once at <a href="https://script.google.com/home/usersettings" target="_blank">script.google.com/home/usersettings</a></p>
+      <p><strong>Step 4:</strong> Come back here and click <strong>Refresh Status</strong>.</p>
     `
   },
   firebase: {

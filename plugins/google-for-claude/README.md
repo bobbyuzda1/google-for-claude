@@ -98,7 +98,17 @@ GFC includes a Mario-themed visual dashboard you can launch with `/google-for-cl
 | NotebookLM (notebooks, podcasts) | `notebooklm-mcp-cli` | Browser cookies |
 | Google Maps (code assistance) | `@googlemaps/code-assist-mcp` | None |
 
-**Note:** Google Sheets and Docs are also accessible through the Workspace MCP server — just ask Claude naturally (e.g., "create a Google Doc titled Q1 Report"). Dedicated shortcuts may be added in a future version.
+**Note:** Google Sheets, Docs, Slides, Tasks, Forms, Keep, Apps Script, Chat, and Meet are all accessible through the Workspace MCP server — just ask Claude naturally (e.g., "create a Google Doc titled Q1 Report"). See [Workspace Services Reference](docs/workspace-services.md) for details on each service, use cases, and free vs paid tier requirements.
+
+### Which Workspace Services to Enable?
+
+When you run `gws auth setup`, you'll be asked to pick APIs. Here's the quick guide:
+
+- **Always enable (free Gmail works):** Drive, Gmail, Calendar, Sheets, Docs, Slides, Tasks, People, Forms, Keep, Apps Script
+- **Only if you have paid Workspace:** Chat (Business Starter+), Meet (transcripts need Business Standard+)
+- **Skip (admin-only):** Vault, Admin SDK, Cloud Identity, Groups Settings, Reseller, Licensing, Alert Center, Classroom, Cloud Pub/Sub
+
+See [docs/workspace-services.md](docs/workspace-services.md) for detailed explanations of what Claude Code can do with each service.
 
 ## Free Tier
 
