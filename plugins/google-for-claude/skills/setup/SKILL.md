@@ -58,13 +58,24 @@ export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$PATH"
 - **uv missing:** Run `curl -LsSf https://astral.sh/uv/install.sh | sh` and add `$HOME/.local/bin` to PATH.
 - **notebooklm-mcp-cli missing:** Run `uv tool install notebooklm-mcp-cli`
 
-### Update PATH after installs
+### Update PATH after installs (CRITICAL)
 
-After all installs, run:
+After all installs, you MUST **permanently** append the paths to the user's shell profile (`~/.bashrc` or `~/.zshrc`). Exporting in the current shell is not enough — new terminals won't have access to `gws`, `nlm`, `gcloud`, etc. if it's not in the profile.
+
+Run:
+```bash
+grep -q ".npm-global/bin" ~/.bashrc || echo 'export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Also export for the current session:
 ```bash
 export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"
 ```
-And ensure these paths are appended to the user's shell profile if not already present.
+
+**Important:** If the user runs `gws`, `nlm`, or other commands later and gets "command not found," the PATH wasn't saved to their profile. Tell them to run the grep/echo line above.
+
+**Note for `su - bobby` or sudo users:** Switching users loads a fresh shell that sources `~/.bashrc` — the paths must be in there, not just exported in a prior session.
 
 ## Phase 3 — Service Selection
 
