@@ -231,6 +231,35 @@
 
   .footer-space { height: 80px; }
 
+  /* Top-right site link */
+  .site-link {
+    position: fixed; top: 16px; right: 16px; z-index: 10;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 20px;
+    background: rgba(26, 26, 58, 0.7); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 168, 0, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .site-link:hover {
+    background: rgba(26, 26, 58, 0.95);
+    border-color: var(--coin-gold);
+    color: var(--coin-gold);
+    transform: translateY(-1px);
+  }
+  .site-link .prompt { color: var(--coin-gold); opacity: 0.9; }
+  .site-link svg {
+    width: 12px; height: 12px; opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .site-link:hover svg { opacity: 1; }
+  @media (max-width: 600px) {
+    .site-link { top: 8px; right: 8px; padding: 6px 10px; font-size: 9px; }
+  }
+
   /* Copyright footer */
   .copyright-footer {
     border-top: 2px solid rgba(255,255,255,0.1);
@@ -302,6 +331,13 @@
 </style>
 </head>
 <body>
+
+<a href="https://uzdavines.ai/labs/google-for-claude" target="_blank" rel="noopener" class="site-link" title="View GFC on uzdavines.ai">
+  <span class="prompt">&gt;_</span>UZDAVINES
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+  </svg>
+</a>
 
 <div class="stars" id="stars"></div>
 <div class="clouds">
