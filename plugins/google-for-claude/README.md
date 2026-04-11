@@ -156,6 +156,15 @@ npm install -g @google/gemini-cli
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute. Issues and PRs welcome on [GitHub](https://github.com/bobbyuzda1/google-for-claude).
 
+## Support the Project
+
+GFC is free and open source under the MIT license. If it's saved you time or made your workflow better, consider chipping in:
+
+- ☕ **[Ko-fi](https://ko-fi.com/bobbyuzda)** — one-time donations, 100% goes to me (no platform fees)
+- ❤️ **[GitHub Sponsors](https://github.com/sponsors/bobbyuzda1)** — recurring or one-time, 0% fees
+
+Or just [⭐ star the repo](https://github.com/bobbyuzda1/google-for-claude) — that helps too.
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
