@@ -60,11 +60,12 @@ function checkStatus() {
     checks.firebase = null;
   }
 
-  // Workspace CLI — installed AND authenticated (can list drive files)
+  // Workspace CLI — installed AND authenticated
   const gwsInstalled = run('which gws');
   if (gwsInstalled) {
-    const gwsTest = run('gws drive files list --limit 1 2>/dev/null');
-    checks.gws = gwsTest && !gwsTest.includes('error') && !gwsTest.includes('authenticate') ? true : false;
+    // Use proper gws command syntax with --params
+    const gwsTest = run(`gws drive files list --params '{"pageSize": 1}' 2>&1`);
+    checks.gws = gwsTest && gwsTest.includes('"files"') ? true : false;
   } else {
     checks.gws = false;
   }
