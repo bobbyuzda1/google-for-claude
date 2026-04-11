@@ -687,6 +687,7 @@ const SETUP_INSTRUCTIONS = {
         <li><strong>chat.spaces</strong> + <strong>chat.messages.create</strong> — Chat bot use cases (post messages, create spaces)</li>
       </ul>
       <p style="font-size:12px;color:#888;">Use Space to toggle, Enter to confirm.</p>
+      <p style="margin-top:10px;color:var(--missing);font-size:13px;"><strong>⚠ Scope limit:</strong> Google fails the OAuth flow with "Something went wrong" if too many scopes are requested (~80+). If you enable all 13 APIs, stick with the default Recommended preset only. Add power-user scopes later via <code style="display:inline;padding:2px 6px;cursor:default;">gws auth login --scopes</code> if needed.</p>
       <hr style="border-color:#333;margin:14px 0;">
       <p style="margin-top:10px;">📖 <strong>Full service details:</strong> <a href="https://github.com/bobbyuzda1/google-for-claude/blob/main/plugins/google-for-claude/docs/workspace-services.md" target="_blank">Workspace Services Reference</a> — what each service does, common use cases, free vs paid tier requirements.</p>
       <p style="margin-top:10px;">📖 <strong>Apps Script users:</strong> After auth, enable the Apps Script API once at <a href="https://script.google.com/home/usersettings" target="_blank">script.google.com/home/usersettings</a></p>

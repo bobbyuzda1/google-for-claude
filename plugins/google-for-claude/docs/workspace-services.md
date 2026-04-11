@@ -236,6 +236,21 @@ If you picked Internal audience, you can safely enable these additional scopes (
 
 **Use Space to toggle, Enter to confirm.**
 
+### ⚠️ Scope Count Limit
+
+Google's OAuth consent flow fails (browser shows "Something went wrong") when too many scopes are requested at once. The practical limit is around **80 scopes**. If you enable all 13 APIs AND add power-user scopes, you'll likely hit ~91 scopes and the OAuth flow will fail.
+
+**Workarounds:**
+
+1. **Enable all 13 APIs but keep default scopes only** (~25-30 scopes total) — recommended for most users
+2. **Drop a few APIs** (Forms, Keep, Tasks, Slides are common cuts) to stay under the limit while keeping power-user scopes
+3. **Add power-user scopes later** without re-running setup:
+   ```
+   gws auth login --scopes drive,gmail,gmail.modify,gmail.send,calendar,sheets,docs
+   ```
+
+If you see "Something went wrong" in the browser during the OAuth flow, scope count is the most likely cause. Re-run `gws auth setup` and pick fewer scopes.
+
 ### Scope Categories Explained
 
 - 🟢 **Recommended** — pre-selected, no verification needed

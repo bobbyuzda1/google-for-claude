@@ -231,6 +231,15 @@ After creating the OAuth client and pasting the Client ID/Secret, `gws` shows a 
 
 Tell the user about these and let them decide. Press Space to toggle, Enter to confirm.
 
+**⚠️ CRITICAL — Scope count limit:** Google's OAuth servers fail the consent flow when too many scopes are requested at once (around 80+ scopes triggers "Something went wrong" in the browser). If the user enables all 13 Workspace APIs AND adds power-user scopes, they'll likely hit this limit (~91 scopes).
+
+**Recommendation:**
+- If user wants all 13 APIs: stick with the default **Recommended (Core Consumer Scopes)** preset, don't add extras
+- If user wants the power-user scopes (gmail.compose/modify/send, chat.*): drop some lighter APIs (Forms, Keep, Tasks, Slides) to stay under the limit
+- Power-user scopes can be added LATER via `gws auth login --scopes` instead of in the initial setup
+
+If they hit "Something went wrong" in the browser, the cause is too many scopes — re-run `gws auth setup` and pick fewer.
+
 For full details on each Workspace service — what it does, use cases, free vs paid — see `docs/workspace-services.md` in the plugin repo.
 
 Validate: Run `gws drive files list --params '{"pageSize": 1}'` and check for a successful response.
