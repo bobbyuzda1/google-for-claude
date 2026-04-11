@@ -308,15 +308,24 @@
   .modal .modal-status.ready { background: rgba(0,200,0,0.15); color: var(--configured); }
   .modal .modal-status.needed { background: rgba(228,64,64,0.15); color: var(--missing); }
   .modal p { font-size: 14px; line-height: 1.8; margin-bottom: 12px; color: #ccc; }
+  .modal ol, .modal ul { margin-bottom: 12px; }
+  .modal hr { border: none; border-top: 1px solid #333; margin: 14px 0; }
+  /* Inline code (default) */
   .modal code {
+    background: #000030; color: var(--coin-gold);
+    padding: 2px 6px; border-radius: 3px; font-size: 13px;
+    font-family: 'Courier New', monospace;
+  }
+  /* Block code: when clickable (top-level in modal body, not inside p/ol) */
+  .modal > code, .modal code[onclick] {
     display: block; background: #000030; color: var(--coin-gold);
     padding: 12px 16px; border-radius: 4px; font-size: 14px;
     margin: 10px 0; font-family: 'Courier New', monospace;
     border: 1px solid var(--pipe-border); word-break: break-all;
     cursor: pointer; position: relative;
   }
-  .modal code:hover { background: #000050; }
-  .modal code::after {
+  .modal code[onclick]:hover { background: #000050; }
+  .modal code[onclick]::after {
     content: '📋 click to copy'; position: absolute; right: 8px; top: 8px;
     font-size: 11px; color: #666;
   }
@@ -672,16 +681,15 @@ const SETUP_INSTRUCTIONS = {
     name: 'Google Workspace',
     icon: '📧',
     readyShort: 'Workspace OAuth is configured! Drive, Gmail, Calendar, and more are ready.',
-    ready: `<p>Workspace OAuth is configured! Drive, Gmail, Calendar, and more are ready.</p>
-      <hr style="border-color:#333;margin:14px 0;">
-      <p><strong>Switching Google Accounts:</strong></p>
-      <p style="font-size:13px;line-height:1.7;">The Workspace MCP server uses <strong>one account at a time</strong>. To switch accounts:</p>
-      <ol style="font-size:13px;line-height:1.7;padding-left:20px;">
-        <li>In a separate terminal, run <code style="display:inline;padding:2px 6px;cursor:default;">gws auth logout</code></li>
-        <li>Then <code style="display:inline;padding:2px 6px;cursor:default;">gws auth login</code> and sign in with the other account</li>
-        <li><strong>Restart Claude Code</strong> so the MCP server picks up the new credentials</li>
+    ready: `<p style="font-size:14px;color:#aaa;margin-bottom:8px;">All enabled APIs (Drive, Gmail, Calendar, Sheets, Docs, Slides, Tasks) are accessible via natural language or commands.</p>
+      <p style="font-size:14px;color:var(--coin-gold);margin-top:14px;"><strong>Switching Google Accounts</strong></p>
+      <p style="font-size:13px;line-height:1.7;color:#aaa;">The Workspace MCP server uses <strong style="color:#ddd;">one account at a time</strong>. To switch accounts:</p>
+      <ol style="font-size:13px;line-height:1.8;padding-left:22px;color:#aaa;">
+        <li>In a separate terminal, run <code style="display:inline;padding:2px 6px;cursor:default;background:#000030;color:var(--coin-gold);">gws auth logout</code></li>
+        <li>Then <code style="display:inline;padding:2px 6px;cursor:default;background:#000030;color:var(--coin-gold);">gws auth login</code> and sign in with the other account</li>
+        <li><strong style="color:#ddd;">Restart Claude Code</strong> so the MCP server picks up the new credentials</li>
       </ol>
-      <p style="font-size:13px;color:#888;margin-top:8px;">⚠️ <strong>Multi-account is not supported in v1</strong> — gws stores credentials in <code style="display:inline;padding:2px 6px;cursor:default;">~/.config/gws/credentials.enc</code>, one account per file.</p>`,
+      <p style="font-size:12px;color:#888;margin-top:10px;">⚠️ Multi-account orchestration is not supported in v1 — gws stores credentials in <code style="display:inline;padding:2px 6px;cursor:default;background:#000030;color:var(--coin-gold);">~/.config/gws/credentials.enc</code>, one account per file.</p>`,
     steps: `
       <p><strong>Step 1:</strong> Make sure the <code style="display:inline;padding:2px 6px;cursor:default;">gws</code> command is on your PATH. In a <strong>separate terminal</strong>, run:</p>
       <code onclick="copyCode(this)">grep -q ".npm-global/bin" ~/.bashrc || echo 'export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc</code>
