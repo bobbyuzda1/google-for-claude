@@ -521,6 +521,15 @@ function renderServices(checks) {
 
     if (status === 'configured') configured++;
 
+    // Get account email if available (string value means email was returned)
+    let accountEmail = null;
+    const checkValue = checks[svc.checkKey];
+    if (status === 'configured' && typeof checkValue === 'string' && checkValue.includes('@')) {
+      accountEmail = checkValue;
+    } else if (svc.checkKey === 'gcloud' && typeof checkValue === 'string' && checkValue.includes('@')) {
+      accountEmail = checkValue;
+    }
+
     card.innerHTML = `
       <div class="status-badge ${status}"></div>
       <div class="icon">${svc.icon}</div>
@@ -529,6 +538,7 @@ function renderServices(checks) {
       <div class="desc" style="margin-top:8px;color:${status === 'configured' ? '#005800' : '#a00000'}; font-size:13px; font-weight:700;">
         ${status === 'configured' ? '✓ READY' : '✗ NEEDS SETUP'}
       </div>
+      ${accountEmail ? `<div class="desc" style="margin-top:4px;font-size:11px;color:#604020;font-weight:600;">👤 ${accountEmail}</div>` : ''}
     `;
 
     card.onclick = () => showSetupModal(svc.id, status);
@@ -619,7 +629,8 @@ const SETUP_INSTRUCTIONS = {
   gemini: {
     name: 'Gemini',
     icon: '⭐',
-    ready: 'Gemini API is configured and working!',
+    ready: '<p>Gemini API is configured and working!</p>',
+    readyShort: 'Gemini API is configured and working!',
     steps: `
       <p><strong>Step 1:</strong> Open Google AI Studio to get an API key:</p>
       <p><a href="https://aistudio.google.com/apikey" target="_blank">🔗 aistudio.google.com/apikey</a></p>
@@ -633,7 +644,8 @@ const SETUP_INSTRUCTIONS = {
   gcloud: {
     name: 'Google Cloud',
     icon: '☁️',
-    ready: 'gcloud CLI is authenticated!',
+    ready: '<p>gcloud CLI is authenticated!</p>',
+    readyShort: 'gcloud CLI is authenticated!',
     steps: `
       <p><strong>Step 1:</strong> Open a <strong>separate terminal</strong> (not Claude Code) and run:</p>
       <code onclick="copyCode(this)">gcloud auth login</code>
@@ -646,7 +658,8 @@ const SETUP_INSTRUCTIONS = {
   gcs: {
     name: 'Cloud Storage',
     icon: '📦',
-    ready: 'Application Default Credentials are configured!',
+    ready: '<p>Application Default Credentials are configured!</p>',
+    readyShort: 'Application Default Credentials are configured!',
     steps: `
       <p>Cloud Storage uses <strong>Application Default Credentials (ADC)</strong>. Open a <strong>separate terminal</strong> and run:</p>
       <code onclick="copyCode(this)">gcloud auth application-default login</code>
@@ -658,7 +671,17 @@ const SETUP_INSTRUCTIONS = {
   workspace: {
     name: 'Google Workspace',
     icon: '📧',
-    ready: 'Workspace OAuth is configured! Drive, Gmail, Calendar, and more are ready.',
+    readyShort: 'Workspace OAuth is configured! Drive, Gmail, Calendar, and more are ready.',
+    ready: `<p>Workspace OAuth is configured! Drive, Gmail, Calendar, and more are ready.</p>
+      <hr style="border-color:#333;margin:14px 0;">
+      <p><strong>Switching Google Accounts:</strong></p>
+      <p style="font-size:13px;line-height:1.7;">The Workspace MCP server uses <strong>one account at a time</strong>. To switch accounts:</p>
+      <ol style="font-size:13px;line-height:1.7;padding-left:20px;">
+        <li>In a separate terminal, run <code style="display:inline;padding:2px 6px;cursor:default;">gws auth logout</code></li>
+        <li>Then <code style="display:inline;padding:2px 6px;cursor:default;">gws auth login</code> and sign in with the other account</li>
+        <li><strong>Restart Claude Code</strong> so the MCP server picks up the new credentials</li>
+      </ol>
+      <p style="font-size:13px;color:#888;margin-top:8px;">⚠️ <strong>Multi-account is not supported in v1</strong> — gws stores credentials in <code style="display:inline;padding:2px 6px;cursor:default;">~/.config/gws/credentials.enc</code>, one account per file.</p>`,
     steps: `
       <p><strong>Step 1:</strong> Make sure the <code style="display:inline;padding:2px 6px;cursor:default;">gws</code> command is on your PATH. In a <strong>separate terminal</strong>, run:</p>
       <code onclick="copyCode(this)">grep -q ".npm-global/bin" ~/.bashrc || echo 'export PATH="$HOME/.npm-global/bin:$HOME/.local/bin:$HOME/google-cloud-sdk/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc</code>
@@ -697,7 +720,8 @@ const SETUP_INSTRUCTIONS = {
   firebase: {
     name: 'Firebase',
     icon: '🔥',
-    ready: 'Firebase is authenticated and ready!',
+    ready: '<p>Firebase is authenticated and ready!</p>',
+    readyShort: 'Firebase is authenticated and ready!',
     steps: `
       <p>Open a <strong>separate terminal</strong> and run:</p>
       <code onclick="copyCode(this)">firebase login</code>
@@ -708,7 +732,8 @@ const SETUP_INSTRUCTIONS = {
   notebooklm: {
     name: 'NotebookLM',
     icon: '📓',
-    ready: 'NotebookLM is connected!',
+    ready: '<p>NotebookLM is connected!</p>',
+    readyShort: 'NotebookLM is connected!',
     steps: `
       <p><strong>WSL users:</strong> Since WSL doesn't have a browser, run the login from <strong>Windows PowerShell</strong>.</p>
       <p><strong>Step 1:</strong> Make sure Python is installed on Windows. Open <strong>PowerShell</strong> and run <code style="display:inline;padding:2px 6px;cursor:default;">python --version</code>. If it's not found, download from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a> and install.</p>
@@ -733,7 +758,8 @@ const SETUP_INSTRUCTIONS = {
   maps: {
     name: 'Google Maps',
     icon: '🗺️',
-    ready: 'Google Maps code assistance is always available — no auth needed!',
+    ready: '<p>Google Maps code assistance is always available — no auth needed!</p>',
+    readyShort: 'Google Maps code assistance is always available — no auth needed!',
     steps: `
       <p>✅ <strong>No setup required!</strong> Google Maps code assistance is free and works without authentication.</p>
       <p>The MCP server provides documentation and code assistance for Google Maps Platform APIs.</p>
@@ -748,12 +774,15 @@ function showSetupModal(serviceId, status) {
   const modal = document.getElementById('modalContent');
   const isReady = status === 'configured';
 
+  // Use readyShort if defined (for the status banner), otherwise use first sentence of ready
+  const readyShort = info.readyShort || (typeof info.ready === 'string' && !info.ready.includes('<') ? info.ready : info.name + ' is configured!');
+
   modal.innerHTML = `
     <h2>${info.icon} ${info.name}</h2>
     <div class="modal-status ${isReady ? 'ready' : 'needed'}">
-      ${isReady ? '✓ ' + info.ready : '✗ Setup needed'}
+      ${isReady ? '✓ ' + readyShort : '✗ Setup needed'}
     </div>
-    ${isReady ? '<p>' + info.ready + '</p>' : info.steps}
+    ${isReady ? info.ready : info.steps}
     <button class="close-btn" onclick="document.getElementById('modalOverlay').classList.remove('active')">CLOSE</button>
   `;
 

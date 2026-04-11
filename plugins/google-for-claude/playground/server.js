@@ -63,9 +63,15 @@ function checkStatus() {
   // Workspace CLI — installed AND authenticated
   const gwsInstalled = run('which gws');
   if (gwsInstalled) {
-    // Use proper gws command syntax with --params
-    const gwsTest = run(`gws drive files list --params '{"pageSize": 1}' 2>&1`);
-    checks.gws = gwsTest && gwsTest.includes('"files"') ? true : false;
+    // Get auth status to retrieve account email
+    const gwsStatus = run('gws auth status 2>&1');
+    if (gwsStatus && gwsStatus.includes('"token_valid": true')) {
+      // Extract the user email from JSON output
+      const userMatch = gwsStatus.match(/"user":\s*"([^"]+)"/);
+      checks.gws = userMatch ? userMatch[1] : true;
+    } else {
+      checks.gws = false;
+    }
   } else {
     checks.gws = false;
   }
@@ -73,9 +79,15 @@ function checkStatus() {
   // NotebookLM — installed AND authenticated
   const nlmInstalled = run('which nlm');
   if (nlmInstalled) {
-    // nlm login --check returns "Authentication valid!" on success
+    // nlm login --check returns "Authentication valid!" with account info
     const nlmCheck = run('nlm login --check 2>&1');
-    checks.notebooklm = nlmCheck && nlmCheck.includes('Authentication valid') ? true : false;
+    if (nlmCheck && nlmCheck.includes('Authentication valid')) {
+      // Extract account email if present
+      const accountMatch = nlmCheck.match(/Account:\s*([^\s]+)/);
+      checks.notebooklm = accountMatch ? accountMatch[1] : true;
+    } else {
+      checks.notebooklm = false;
+    }
   } else {
     checks.notebooklm = false;
   }
