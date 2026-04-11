@@ -672,6 +672,22 @@ const SETUP_INSTRUCTIONS = {
       <p style="font-size:13px;line-height:1.8;"><strong>Chat</strong> — requires Workspace Business Starter+<br><strong>Meet</strong> — basic works on free tier, but transcripts/recordings need Business Standard+</p>
       <p style="margin-top:10px;"><strong style="color:var(--missing);">❌ Skip (admin-only):</strong></p>
       <p style="font-size:13px;line-height:1.8;">Vault · Admin SDK · Cloud Identity · Groups Settings · Reseller · Licensing · Alert Center · Classroom · Cloud Pub/Sub</p>
+      <hr style="border-color:#333;margin:14px 0;">
+      <p><strong>OAuth Consent Screen — Pick Audience:</strong></p>
+      <p style="font-size:13px;line-height:1.8;">
+        <strong style="color:var(--configured);">Internal</strong> — pick this if you have a Google Workspace organization (custom domain, even just one user). No test user limits, no verification, no 7-day token expiry.<br>
+        <strong style="color:var(--partial);">External</strong> — only if you use personal Gmail (no Workspace org). Refresh tokens expire every 7 days in testing mode.
+      </p>
+      <hr style="border-color:#333;margin:14px 0;">
+      <p><strong>Scope Picker — Optional Power-User Scopes:</strong></p>
+      <p style="font-size:13px;line-height:1.8;">The default <strong>Recommended (Core Consumer Scopes)</strong> covers most use cases. Internal apps can also enable these without Google verification:</p>
+      <ul style="font-size:13px;line-height:1.8;padding-left:20px;">
+        <li><strong>gmail.modify</strong> — draft, modify, trash emails (let Claude manage your inbox)</li>
+        <li><strong>gmail.send</strong> — send emails (let Claude send for you)</li>
+        <li><strong>chat.spaces</strong> + <strong>chat.messages.create</strong> — Chat bot use cases (post messages, create spaces)</li>
+      </ul>
+      <p style="font-size:12px;color:#888;">Use Space to toggle, Enter to confirm.</p>
+      <hr style="border-color:#333;margin:14px 0;">
       <p style="margin-top:10px;">📖 <strong>Full service details:</strong> <a href="https://github.com/bobbyuzda1/google-for-claude/blob/main/plugins/google-for-claude/docs/workspace-services.md" target="_blank">Workspace Services Reference</a> — what each service does, common use cases, free vs paid tier requirements.</p>
       <p style="margin-top:10px;">📖 <strong>Apps Script users:</strong> After auth, enable the Apps Script API once at <a href="https://script.google.com/home/usersettings" target="_blank">script.google.com/home/usersettings</a></p>
       <p><strong>Step 4:</strong> Come back here and click <strong>Refresh Status</strong>.</p>

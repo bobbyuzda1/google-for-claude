@@ -195,6 +195,53 @@ These require Workspace admin privileges and usually fail with "insufficient per
 
 ---
 
+## OAuth Consent Setup — Internal vs External
+
+When you run `gws auth setup`, the wizard creates an OAuth consent screen in Google Cloud Console. You'll be asked to pick **Audience**:
+
+### Pick **Internal** if:
+- You have a Google Workspace organization (custom domain, even with just one user)
+- You want the simplest setup with no friction
+
+**Why Internal is better when available:**
+- ✅ No test user limits
+- ✅ No 7-day refresh token expiry
+- ✅ No app verification required
+- ✅ No "unverified app" warning during OAuth
+- ✅ Can enable RESTRICTED and SENSITIVE scopes (gmail.modify, gmail.send, chat.*) without verification
+
+### Pick **External** if:
+- You only have a personal Gmail account (no Workspace org)
+
+**External caveats:**
+- Must add yourself as a test user in the consent screen
+- Refresh tokens expire every 7 days in testing mode (you'll need to re-auth weekly)
+- "This app isn't verified" warning screen during OAuth flow
+- Cannot use RESTRICTED scopes without Google verification (lengthy process)
+
+## OAuth Scope Selection
+
+After creating the OAuth client, `gws auth setup` shows a scope picker. The **Recommended (Core Consumer Scopes)** preset is selected by default — read/write access to Drive, Gmail, Calendar, Docs, Sheets, Slides, Tasks. This covers 95% of typical use cases.
+
+### Power-User Scopes (Internal Apps Only)
+
+If you picked Internal audience, you can safely enable these additional scopes (External requires Google verification for them):
+
+| Scope | What it enables |
+|---|---|
+| `gmail.modify` | Draft, modify, and trash emails. Lets Claude manage your inbox. |
+| `gmail.send` | Send emails on your behalf. Lets Claude send replies and new messages. |
+| `chat.spaces` | Create and manage Google Chat spaces. |
+| `chat.messages.create` | Post messages to Chat spaces. Useful for Chat bots and notifications. |
+
+**Use Space to toggle, Enter to confirm.**
+
+### Scope Categories Explained
+
+- 🟢 **Recommended** — pre-selected, no verification needed
+- 🟠 **SENSITIVE** — orange icons. Internal apps can enable freely. External needs verification.
+- 🔴 **RESTRICTED** — red icons. Internal apps can enable freely. External needs lengthy "restricted scope verification."
+
 ## Changing Your Enabled Services Later
 
 You can re-run `gws auth setup` to change which services you have access to. It'll update your OAuth client and re-authenticate.

@@ -204,6 +204,33 @@ Most users want this right after Gemini — it powers all your day-to-day Google
 **Skip (admin-only or unrelated):**
 - ❌ Google Vault, Admin SDK, Cloud Identity, Groups Settings, Reseller, Licensing, Alert Center, Classroom, Cloud Pub/Sub
 
+#### Sub-step: Choosing OAuth Audience (Internal vs External)
+
+When the OAuth consent screen wizard asks for **Audience**, the right choice depends on the user's account type:
+
+**If they have a Google Workspace organization** (custom domain like `company.com`, even with just one user):
+- ✅ **Pick Internal**
+- No test user limits, no 7-day refresh token expiry, no verification required, no warning screens
+- Only users in the Workspace org can authenticate (which is fine — usually just them)
+
+**If they only have personal Gmail** (no Workspace org):
+- Must pick **External**
+- App stays in "testing mode" — must add themselves as a test user
+- ⚠️ Refresh tokens expire every 7 days in testing mode — they'll need to re-authenticate weekly
+- "Unverified app" warning screen will appear during OAuth flow
+
+#### Sub-step: OAuth Scope Selection
+
+After creating the OAuth client and pasting the Client ID/Secret, `gws` shows a scope picker. The **Recommended (Core Consumer Scopes)** preset is selected by default and covers most use cases (read/write to Drive, Gmail, Calendar, Docs, Sheets, Slides, Tasks).
+
+**Power users may want to enable these additional scopes** (only really usable on Internal apps — External requires Google verification):
+
+- **`gmail.modify`** — draft, modify, and trash emails. Enable if they want Claude to manage their inbox.
+- **`gmail.send`** — send emails on their behalf. Enable if they want Claude to send emails for them.
+- **`chat.spaces`** + **`chat.messages.create`** — create Chat spaces and post messages. Enable for Chat bot use cases.
+
+Tell the user about these and let them decide. Press Space to toggle, Enter to confirm.
+
 For full details on each Workspace service — what it does, use cases, free vs paid — see `docs/workspace-services.md` in the plugin repo.
 
 Validate: Run `gws drive files list --params '{"pageSize": 1}'` and check for a successful response.
